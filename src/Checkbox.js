@@ -1,4 +1,3 @@
-
 import React, {PureComponent, PropTypes} from 'react';
 import {Set as ImmutableSet, Map as ImmutableMap} from 'immutable';
 // Temporarily using relative reference until we publish on npm.
@@ -31,7 +30,8 @@ export default class Checkbox extends PureComponent {
     checked: false,
     disabled: false,
     indeterminate: false,
-    onChange: () => {}
+    onChange: () => {
+    }
   }
 
   state = {
@@ -167,6 +167,7 @@ export default class Checkbox extends PureComponent {
     this.foundation.init();
     this.rippleFoundation.init();
   }
+
   componentWillUnmount() {
     this.rippleFoundation.destroy();
     this.foundation.destroy();
