@@ -4,7 +4,13 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material/checkbox": "^0.3.5",
+    "@material/form-field": "^0.2.6",
+    "@material/ripple": "^0.6.2",
+    "classnames": "^2.2.5",
     "firebase": "^4.1.1",
+    "immutable": "^3.8.1",
+    "material-components-web": "^0.12.1",
     "react": "^15.5.4",
     "react-dom": "^15.5.4"
   },
