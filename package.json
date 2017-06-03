@@ -1,11 +1,12 @@
 {
   "name": "oldtimer",
-  "homepage": "https://codekiln.github.io/oldtimer",
+  "homepage": "https://codekiln.github.io/beetimer",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
     "firebase": "^4.1.1",
-    "material-ui": "^0.18.1",
+    "material-ui": "next",
+    "material-ui-icons": "^1.0.0-alpha.3",
     "react": "^15.5.4",
     "react-dom": "^15.5.4"
   },

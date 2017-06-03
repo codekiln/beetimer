@@ -1,6 +1,6 @@
 {
-  "short_name": "Oldtimer",
-  "name": "Oldtimer: old-fashioned timer",
+  "short_name": "Beetimer",
+  "name": "Beetimer: a timer for beeminder",
   "icons": [
     {
       "src": "favicon.ico",
