@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withStyles, createStyleSheet } from 'material-ui/styles';
 import Avatar from 'material-ui/Avatar';
 import Chip from 'material-ui/Chip';
-import FaceIcon from 'material-ui-icons/Face';
+// import FaceIcon from 'material-ui-icons/Face';
 import { grey } from 'material-ui/styles/colors';
 
 const styleSheet = createStyleSheet('UserAvatar', theme => ({
@@ -24,9 +24,9 @@ function handleRequestDelete() {
   alert('You clicked the delete icon.'); // eslint-disable-line no-alert
 }
 
-function handleClick() {
-  alert('You clicked the Chip.'); // eslint-disable-line no-alert
-}
+// function handleClick() {
+//   alert('You clicked the Chip.'); // eslint-disable-line no-alert
+// }
 
 function UserAvatar(props) {
   const classes = props.classes;

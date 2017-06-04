@@ -1,12 +1,12 @@
 import firebase from "firebase";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD4GJc9J3AqbrZK9rtYNW_y5DzcPvhGZig",
-  authDomain: "friendlychat-42c09.firebaseapp.com",
-  databaseURL: "https://friendlychat-42c09.firebaseio.com",
-  projectId: "friendlychat-42c09",
-  storageBucket: "friendlychat-42c09.appspot.com",
-  messagingSenderId: "790348993129"
+  apiKey: "AIzaSyAFwvW4DgBIiPUCZCvPnn7ca4gNh4EM-dY",
+  authDomain: "beetimer-4df81.firebaseapp.com",
+  databaseURL: "https://beetimer-4df81.firebaseio.com",
+  projectId: "beetimer-4df81",
+  storageBucket: "beetimer-4df81.appspot.com",
+  messagingSenderId: "625145362661"
 };
 
 firebase.initializeApp(firebaseConfig);
