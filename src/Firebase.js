@@ -1,40 +1,49 @@
-import firebase from 'firebase';
+import firebase from "firebase";
 
-class Firebase {
+const firebaseConfig = {
+  apiKey: "AIzaSyAFwvW4DgBIiPUCZCvPnn7ca4gNh4EM-dY",
+  authDomain: "beetimer-4df81.firebaseapp.com",
+  databaseURL: "https://beetimer-4df81.firebaseio.com",
+  projectId: "beetimer-4df81",
+  storageBucket: "beetimer-4df81.appspot.com",
+  messagingSenderId: "625145362661"
+};
 
+firebase.initializeApp(firebaseConfig);
+
+/**
+ * Encapsulate the connection to Firebase with a simple class
+ */
+class FirebaseConnection {
   constructor() {
-    this.connection = firebase.initializeApp(this);
+
+    // Shortcuts to Firebase SDK features.
+    this.auth = firebase.auth();
+    this.database = firebase.database();
+    this.storage = firebase.storage();
+
+    // Initiates Firebase auth and listen to auth state changes.
+    this.setOnAuthStateChanged(this.onAuthStateChanged.bind(this));
   }
 
-  get apiKey() {
-    if (process && process.env && process.env.FIREBASE_OLDTIMER_LOCAL_DEV) {
-      return process.env.FIREBASE_OLDTIMER_LOCAL_DEV
+  signIn() {
+    // Sign in Firebase using popup auth and Google as the identity provider.
+    const provider = new firebase.auth.GoogleAuthProvider();
+    return this.auth.signInWithPopup(provider);
+  }
+
+  setOnAuthStateChanged(handler) {
+    this.auth.onAuthStateChanged(handler);
+  }
+
+  onAuthStateChanged(user) {
+    if (user) { // User is signed in!
+      // console.log(`Firebase.onAuthStateChanged: got user ${JSON.stringify(user)}`);
+    } else {
+      // User is signed out!
+      // console.log('Firebase.onAuthStateChanged: no user')
     }
-    // browser key restricted to https://codekiln.github.io/oldtimer/*
-    // at https://console.developers.google.com/apis/credentials
-    return 'AIzaSyCd6-VL0WhO1kjS8sfXIgGl3co4T8Xf83A'
-  }
-
-  get authDomain() {
-    return "oldtimer-9dfb6.firebaseapp.com"
-  }
-
-  get databaseURL() {
-    return "https://oldtimer-9dfb6.firebaseio.com"
-  }
-
-  get projectId() {
-    return "oldtimer-9dfb6"
-  }
-
-  get storageBucket() {
-    return "oldtimer-9dfb6.appspot.com"
-  }
-
-  get messagingSenderId() {
-    return "332873739617"
-  }
-
+  };
 }
 
-export default new Firebase().connection;
+export default new FirebaseConnection();

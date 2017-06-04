@@ -1,9 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { withStyles, createStyleSheet } from 'material-ui/styles';
-// import Paper from 'material-ui/Paper';
-import Grid from 'material-ui/Grid';
-import TopBar from './TopBar'
+import React from "react";
+import PropTypes from "prop-types";
+import {createStyleSheet, withStyles} from "material-ui/styles";
+import Grid from "material-ui/Grid";
 
 const styleSheet = createStyleSheet('FullWidthGrid', theme => ({
   root: {
@@ -24,7 +22,7 @@ function FullWidthGrid(props) {
     <div className={classes.root}>
       <Grid container gutter={24}>
         <Grid item xs={12}>
-          <TopBar/>
+          {props.header}
         </Grid>
       </Grid>
     </div>
