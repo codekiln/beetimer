@@ -3,8 +3,8 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import MainLayout from './MainLayout';
 import TopBar from "./TopBar";
 import Firebase from './Firebase'
-import Typography from 'material-ui/Typography';
 import Button from 'material-ui/Button';
+import UserAvatar from './UserAvatar'
 
 export default class App extends Component {
 
@@ -68,7 +68,7 @@ export default class App extends Component {
 
   render() {
     const loginArea = this.state.userName ?
-      <Typography type="title" colorInherit>{this.state.userName}</Typography> :
+      <UserAvatar displayName={this.state.userName} imageUrl={this.state.userProfilePicUrl}/> :
       <Button contrast onClick={this.handleLoginClicked}>Login</Button>;
 
     const topBar = (
