@@ -14,19 +14,6 @@ const styleSheet = createStyleSheet('TrackCardEdit', theme => ({
     margin: theme.spacing.unit,
     maxWidth: 400
   },
-  expand: {
-    transform: 'rotate(0deg)',
-    transition: theme.transitions.create('transform', {
-      duration: theme.transitions.duration.shortest,
-    }),
-  },
-  expandOpen: {
-    transform: 'rotate(180deg)',
-  },
-  avatar: {
-    // backgroundColor: red[500]
-  },
-  flexGrow: {flex: '1 1 auto'},
   doneIcon: {
     // height: 38,
     // width: 38,
@@ -52,14 +39,8 @@ class TrackCardEdit extends Component {
     this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
 
-    const {editing, name, description} = props;
-
-    this.state = { editing, name, description };
+    this.state = props.tracker;
   }
-
-  handleExpandClick = () => {
-    this.setState({expanded: !this.state.expanded});
-  };
 
   handleNameChange(event) {
     this.setState({name: event.target.value});
@@ -71,9 +52,8 @@ class TrackCardEdit extends Component {
 
   handleSubmit(event) {
     event.preventDefault();
-    this.setState({editing: false});
-    console.log('Card updated and submitted: ')
-    console.log(this.state);
+    console.log('Card updated and submitted: ');
+    this.props.onSave(this.state);
   }
 
   render() {
@@ -83,12 +63,12 @@ class TrackCardEdit extends Component {
       nameEdit = (
         <TextField required label="Name" className={classes.input} value={name}
                    type="text" onChange={this.handleNameChange}
-                   // InputProps={{ placeholder: 'Time Tracker Name' }}
+          // InputProps={{ placeholder: 'Time Tracker Name' }}
         />),
       descriptionEdit = (
         <TextField label="Description" className={classes.input} value={description}
                    multiline rowsMax="4" onChange={this.handleDescriptionChange}
-                   // InputProps={{ placeholder: 'Time Tracker Description' }}
+          // InputProps={{ placeholder: 'Time Tracker Description' }}
         />)
     ;
 
@@ -115,8 +95,8 @@ class TrackCardEdit extends Component {
 
 TrackCardEdit.propTypes = {
   classes: PropTypes.object.isRequired,
-  name: PropTypes.string.isRequired,
-  description: PropTypes.string.isRequired,
+  tracker: PropTypes.object.isRequired,
+  onSave: PropTypes.func.isRequired,
 };
 
 export default withStyles(styleSheet)(TrackCardEdit);

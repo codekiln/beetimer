@@ -7,6 +7,7 @@ import AddIcon from "material-ui-icons/Add";
 import TrackMessage from "./TrackMessage";
 import TrackCardView from "./TrackCardView";
 import TrackCardEdit from "./TrackCardEdit";
+import UUID from 'uuid/v4';
 // import ModeEditIcon from 'material-ui-icons/ModeEdit';
 
 
@@ -18,6 +19,11 @@ const styleSheet = createStyleSheet('Tracks', theme => ({
   button: {
     margin: theme.spacing.unit,
   },
+  // gutter={24} direction='column' justify='flex-start' align='center'
+  grid: {
+    gutter: 24,
+    direction: 'row'
+  }
 }));
 
 
@@ -28,10 +34,9 @@ class Tracks extends Component {
 
     Firebase.setOnAuthStateChanged(this.onAuthStateChanged.bind(this));
     this.onAddTrackClicked = this.onAddTrackClicked.bind(this);
+    this.onSaveTrack = this.onSaveTrack.bind(this);
 
-    this.state = {
-      tracks: [],
-    };
+    this.state = {};
   }
 
   componentDidMount() {
@@ -56,37 +61,53 @@ class Tracks extends Component {
   }
 
   onAddTrackClicked() {
-
-    this.setState({
-      tracks: this.state.tracks.concat([{
-        key: this.state.tracks.length + 1,
+    const newId = UUID(),
+      newTrack = {
+        key: newId,
         name: '',
         description: '',
         editing: true
-      }])
-    });
+      };
+
+    this.setState({[newId]: newTrack});
     console.log('caught Tracks.onAddTrackClicked');
     console.log(this.state);
   }
 
+  onSaveTrack(tracker) {
+    console.log('caught TrackList.onSaveTrack:');
+    console.log(tracker);
+    this.setState({[tracker.key]: { ...tracker, editing: false}});
+    console.log(this.state);
+  }
+
   render() {
-    const classes = this.props.classes;
-    const tracks = this.state.tracks.length > 0 ?
-      this.state.tracks.map(function (tracker) {
-        if (tracker.editing) {
-          return (
-            <TrackCardEdit key={tracker.key} name={tracker.name} description={tracker.description}
-                           editing={tracker.editing}/>
-          )
-        }
+    const
+      classes = this.props.classes,
+
+      renderTrack = (trackerKey, index) => {
+        const tracker = this.state[trackerKey];
         return (
-          <TrackCardView key={tracker.key} name={tracker.name} description={tracker.description}/>
-        );
-      }) : (
+          <Grid key={index} item sm={6} xs={12}>
+            {
+              tracker.editing
+              ? (<TrackCardEdit key={trackerKey} tracker={tracker} onSave={this.onSaveTrack}/>)
+              : (<TrackCardView key={tracker.key} name={tracker.name} description={tracker.description}/>)
+            }
+          </Grid>
+        )
+      },
+
+      trackerKeys = Object.keys(this.state),
+
+      tracks = trackerKeys.length > 0 ? trackerKeys.map(renderTrack) : (
         <TrackMessage title="No time trackers found!" body="Click the button below to create one."/>
       );
+
+    console.log('tracks rendered: ');
+    console.log(tracks);
     return (
-      <Grid container gutter={24} direction='column' justify='flex-start' align='center'>
+      <Grid container className={classes.grid}>
         {tracks}
         <Grid item xs={11}>
           <Button fab accent className={classes.button} onClick={this.onAddTrackClicked}>
