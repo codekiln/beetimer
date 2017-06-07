@@ -1,33 +1,61 @@
-import React, {Component} from "react";
-import Firebase from "../Firebase";
-import {createStyleSheet, withStyles} from "material-ui/styles";
-import {Button, Grid} from "material-ui";
-import PropTypes from "prop-types";
-import AddIcon from "material-ui-icons/Add";
-import TrackMessage from "./TrackMessage";
-import TrackCardView from "./TrackCardView";
-import TrackCardEdit from "./TrackCardEdit";
+import React, {Component} from 'react';
+import Firebase from '../Firebase';
+import {createStyleSheet, withStyles} from 'material-ui/styles';
+import {Button, Grid} from 'material-ui';
+import PropTypes from 'prop-types';
+import AddIcon from 'material-ui-icons/Add';
+import TrackMessage from './TrackMessage';
+import TrackCardView from './TrackCardView';
+import TrackCardEdit from './TrackCardEdit';
 import UUID from 'uuid/v4';
 // import ModeEditIcon from 'material-ui-icons/ModeEdit';
 
 
-const styleSheet = createStyleSheet('Tracks', theme => ({
-  root: {
-    flexGrow: 1,
-    marginTop: 30
-  },
-  button: {
-    margin: theme.spacing.unit,
-  },
-  grid: theme.mixins.gutters({
-    flexGrow: 1,
-    marginTop: 30
-  }),
-  flashmessage: {
-    justify: 'center',
-  }
-}));
+const
+  styleSheet = createStyleSheet('Tracks', theme => ({
+    root:         {
+      flexGrow:  1,
+      marginTop: 30
+    },
+    button:       {
+      margin: theme.spacing.unit,
+    },
+    grid:         theme.mixins.gutters({
+      flexGrow:  1,
+      marginTop: 30
+    }),
+    flashmessage: {
+      justify: 'center',
+    }
+  }));
 
+function getSaveTrackerAction(tracker, isStillEditing = false) {
+  return function({trackers}, props) {
+    return {
+      trackers: {
+        // all the existing tracks
+        ...trackers,
+        // plus the new saved tracker
+        [tracker.key]: {
+          ...tracker,
+          editing: isStillEditing
+        }
+      }
+    };
+  };
+}
+
+function getTrackerDeleteAction(tracker) {
+  return function({trackers}, props) {
+    const {[tracker.key]: deleted, ...newTrackers} = trackers;
+    return {
+      trackers: {
+        // all of the existing trackers except for the removed one
+        ...newTrackers
+      }
+    };
+  }
+}
 
 class Tracks extends Component {
 
@@ -36,9 +64,12 @@ class Tracks extends Component {
 
     Firebase.setOnAuthStateChanged(this.onAuthStateChanged.bind(this));
     this.onAddTrackClicked = this.onAddTrackClicked.bind(this);
-    this.onSaveTrack = this.onSaveTrack.bind(this);
+    this.onSaveTrack       = this.onSaveTrack.bind(this);
+    this.onCancelNewTrack  = this.onCancelNewTrack.bind(this);
 
-    this.state = {};
+    this.state = {
+      trackers: {}
+    };
   }
 
   componentDidMount() {
@@ -47,31 +78,24 @@ class Tracks extends Component {
 
   onAuthStateChanged(user) {
     if (user) {
-      //
-      // this.setState({
-      //   userName: user.displayName,
-      //   userProfilePicUrl: user.photoURL
-      // });
+      // firebase TBD
     } else {
-      // this.setState({
-      //   userName: '',
-      //   userProfilePicUrl: ''
-      // });
+      // firebase TBD
     }
     console.log('caught Tracks.onAuthStateChanged');
     console.log(this.state);
   }
 
   onAddTrackClicked() {
-    const newId = UUID(),
-      newTrack = {
-        key: newId,
-        name: '',
-        description: '',
-        editing: true
-      };
+    const newId      = UUID(),
+          newTracker = {
+            key:         newId,
+            name:        '',
+            description: '',
+            editing:     true
+          };
 
-    this.setState({[newId]: newTrack});
+    this.setState(getSaveTrackerAction(newTracker, true));
     console.log('caught Tracks.onAddTrackClicked');
     console.log(this.state);
   }
@@ -79,30 +103,35 @@ class Tracks extends Component {
   onSaveTrack(tracker) {
     console.log('caught TrackList.onSaveTrack:');
     console.log(tracker);
-    this.setState({[tracker.key]: {...tracker, editing: false}});
-    console.log(this.state);
+    this.setState(getSaveTrackerAction(tracker));
+  }
+
+  onCancelNewTrack(tracker) {
+    console.log('caught TrackList.onCancelNewTrack:');
+    this.setState(getTrackerDeleteAction(tracker));
   }
 
   render() {
     const
-      classes = this.props.classes,
+      classes     = this.props.classes,
 
       renderTrack = (trackerKey, index) => {
-        const tracker = this.state[trackerKey];
+        const tracker = this.state.trackers[trackerKey];
         return (
           <Grid key={index} item sm={6} xs={12}>
             {
               tracker.editing
-                ? (<TrackCardEdit key={trackerKey} tracker={tracker} onSave={this.onSaveTrack}/>)
+                ? (<TrackCardEdit key={trackerKey} tracker={tracker}
+                                  onSave={this.onSaveTrack} onCancel={this.onCancelNewTrack}/>)
                 : (<TrackCardView key={tracker.key} name={tracker.name} description={tracker.description}/>)
             }
           </Grid>
         )
       },
 
-      trackerKeys = Object.keys(this.state),
+      trackerKeys = Object.keys(this.state.trackers),
 
-      tracks = trackerKeys.length > 0 ? trackerKeys.map(renderTrack) : (
+      tracks      = trackerKeys.length > 0 ? trackerKeys.map(renderTrack) : (
         <Grid item key={'flashmessage-center'} sm={12} xs={12}>
           <Grid container className={classes.flashmessage} justify="center">
             <Grid item sm={8} xs={8}>
