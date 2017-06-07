@@ -11,7 +11,7 @@ import {TextField} from "material-ui";
 
 const styleSheet = createStyleSheet('TrackCardEdit', theme => ({
   card: {
-    margin: theme.spacing.unit,
+    // margin: theme.spacing.unit,
     maxWidth: 400
   },
   doneIcon: {

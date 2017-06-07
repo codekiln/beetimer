@@ -2,13 +2,13 @@ import React from "react";
 import {createStyleSheet, withStyles} from "material-ui/styles";
 import {Grid, Paper, Typography} from "material-ui";
 import PropTypes from "prop-types";
-// import ModeEditIcon from 'material-ui-icons/ModeEdit';
 
 
 const styleSheet = createStyleSheet('TrackMessage', theme => ({
   root: theme.mixins.gutters({
     paddingTop: 16,
     paddingBottom: 16,
+    textAlign: "center"
   }),
   button: {
     margin: theme.spacing.unit,

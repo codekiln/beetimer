@@ -12,17 +12,19 @@ import UUID from 'uuid/v4';
 
 
 const styleSheet = createStyleSheet('Tracks', theme => ({
-  root: theme.mixins.gutters({
-    paddingTop: 16,
-    paddingBottom: 16,
-  }),
+  root: {
+    flexGrow: 1,
+    marginTop: 30
+  },
   button: {
     margin: theme.spacing.unit,
   },
-  // gutter={24} direction='column' justify='flex-start' align='center'
-  grid: {
-    gutter: 24,
-    direction: 'row'
+  grid: theme.mixins.gutters({
+    flexGrow: 1,
+    marginTop: 30
+  }),
+  flashmessage: {
+    justify: 'center',
   }
 }));
 
@@ -77,7 +79,7 @@ class Tracks extends Component {
   onSaveTrack(tracker) {
     console.log('caught TrackList.onSaveTrack:');
     console.log(tracker);
-    this.setState({[tracker.key]: { ...tracker, editing: false}});
+    this.setState({[tracker.key]: {...tracker, editing: false}});
     console.log(this.state);
   }
 
@@ -91,8 +93,8 @@ class Tracks extends Component {
           <Grid key={index} item sm={6} xs={12}>
             {
               tracker.editing
-              ? (<TrackCardEdit key={trackerKey} tracker={tracker} onSave={this.onSaveTrack}/>)
-              : (<TrackCardView key={tracker.key} name={tracker.name} description={tracker.description}/>)
+                ? (<TrackCardEdit key={trackerKey} tracker={tracker} onSave={this.onSaveTrack}/>)
+                : (<TrackCardView key={tracker.key} name={tracker.name} description={tracker.description}/>)
             }
           </Grid>
         )
@@ -101,7 +103,13 @@ class Tracks extends Component {
       trackerKeys = Object.keys(this.state),
 
       tracks = trackerKeys.length > 0 ? trackerKeys.map(renderTrack) : (
-        <TrackMessage title="No time trackers found!" body="Click the button below to create one."/>
+        <Grid item key={'flashmessage-center'} sm={12} xs={12}>
+          <Grid container className={classes.flashmessage} justify="center">
+            <Grid item sm={8} xs={8}>
+              <TrackMessage title="No time trackers found!" body="Click the button below to create one."/>
+            </Grid>
+          </Grid>
+        </Grid>
       );
 
     console.log('tracks rendered: ');
@@ -109,7 +117,7 @@ class Tracks extends Component {
     return (
       <Grid container className={classes.grid}>
         {tracks}
-        <Grid item xs={11}>
+        <Grid item xs={12}>
           <Button fab accent className={classes.button} onClick={this.onAddTrackClicked}>
             <AddIcon />
           </Button>
