@@ -38,6 +38,7 @@ class TrackCardEdit extends Component {
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleCancel = this.handleCancel.bind(this);
 
     this.state = props.tracker;
   }
@@ -52,8 +53,14 @@ class TrackCardEdit extends Component {
 
   handleSubmit(event) {
     event.preventDefault();
-    console.log('Card updated and submitted: ');
+    console.log('Tracker updated and submitted for saving');
     this.props.onSave(this.state);
+  }
+
+  handleCancel(event) {
+    event.preventDefault();
+    console.log('New Tracker canceled');
+    this.props.onCancel(this.state);
   }
 
   render() {
@@ -83,7 +90,7 @@ class TrackCardEdit extends Component {
             <IconButton type="submit" label="Save">
               <DoneIcon className={classes.doneIcon}/>
             </IconButton>
-            <IconButton label="Cancel">
+            <IconButton label="Cancel" onClick={this.handleCancel}>
               <DeleteIcon />
             </IconButton>
           </CardActions>
@@ -97,6 +104,7 @@ TrackCardEdit.propTypes = {
   classes: PropTypes.object.isRequired,
   tracker: PropTypes.object.isRequired,
   onSave: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
 };
 
 export default withStyles(styleSheet)(TrackCardEdit);
