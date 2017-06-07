@@ -5,6 +5,7 @@ import TopBar from "./TopBar";
 import Firebase from './Firebase'
 import Button from 'material-ui/Button';
 import UserAvatar from './UserAvatar'
+import Tracks from "./Tracks/TracksList";
 
 export default class App extends Component {
 
@@ -67,17 +68,20 @@ export default class App extends Component {
   }
 
   render() {
-    const loginArea = this.state.userName ?
+    const loginZone = this.state.userName ?
       <UserAvatar displayName={this.state.userName} imageUrl={this.state.userProfilePicUrl}/> :
       <Button contrast onClick={this.handleLoginClicked}>Login</Button>;
 
-    const topBar = (
-      <TopBar loginArea={loginArea}/>
-    );
-
     return (
       <MuiThemeProvider>
-        <MainLayout header={topBar}/>
+        <MainLayout
+          header={
+            <TopBar >
+              {loginZone}
+            </TopBar>
+          }>
+          <Tracks/>
+        </MainLayout>
       </MuiThemeProvider>
     );
   }

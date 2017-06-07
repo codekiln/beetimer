@@ -3,34 +3,40 @@ import PropTypes from "prop-types";
 import {createStyleSheet, withStyles} from "material-ui/styles";
 import Grid from "material-ui/Grid";
 
+
 const styleSheet = createStyleSheet('FullWidthGrid', theme => ({
   root: {
     flexGrow: 1,
     marginTop: 30,
   },
   paper: {
-    padding: 16,
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
+    padding: theme.spacing.unit * 2,
+    height: '100%',
   },
 }));
 
-function FullWidthGrid(props) {
-  const classes = props.classes;
+
+function FullWidthGrid({classes, header, children}) {
 
   return (
     <div className={classes.root}>
       <Grid container gutter={24}>
         <Grid item xs={12}>
-          {props.header}
+          {header}
+        </Grid>
+        <Grid item xs={12}>
+          {children}
         </Grid>
       </Grid>
     </div>
   );
 }
 
+
 FullWidthGrid.propTypes = {
   classes: PropTypes.object.isRequired,
+  header: PropTypes.object.isRequired
 };
+
 
 export default withStyles(styleSheet)(FullWidthGrid);
