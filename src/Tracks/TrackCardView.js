@@ -7,7 +7,7 @@ import IconButton from "material-ui/IconButton";
 import Typography from "material-ui/Typography";
 import {red} from "material-ui/styles/colors";
 import PlayArrowIcon from "material-ui-icons/PlayArrow";
-
+import DeleteIcon from "material-ui-icons/Delete";
 
 const styleSheet = createStyleSheet('TrackCardView', theme => ({
   card: {maxWidth: 400},
@@ -44,6 +44,18 @@ class TrackCardView extends Component {
   //   this.setState({expanded: !this.state.expanded});
   // };
 
+  constructor(props) {
+    super(props);
+
+    this.handleDelete = this.handleDelete.bind(this);
+  }
+
+  handleDelete(event) {
+    event.preventDefault();
+    console.log('Existing Tracker delete initiated');
+    this.props.onDelete(this.props.id);
+  }
+
   render() {
     const
       {classes, name, description} = this.props,
@@ -73,6 +85,9 @@ class TrackCardView extends Component {
             <PlayArrowIcon className={classes.playIcon}/>
           </IconButton>
           <div className={classes.flexGrow}/>
+          <IconButton label="Delete" onClick={this.handleDelete}>
+            <DeleteIcon />
+          </IconButton>
           {/*<IconButton*/}
           {/*className={classnames(classes.expand, {*/}
           {/*[classes.expandOpen]: this.state.expanded,*/}
@@ -96,6 +111,8 @@ TrackCardView.propTypes = {
   classes: PropTypes.object.isRequired,
   name: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  id: PropTypes.string.isRequired,
 };
 
 export default withStyles(styleSheet)(TrackCardView);

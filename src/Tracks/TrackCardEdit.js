@@ -60,7 +60,7 @@ class TrackCardEdit extends Component {
   handleCancel(event) {
     event.preventDefault();
     console.log('New Tracker canceled');
-    this.props.onCancel(this.state);
+    this.props.onCancel(this.props.id);
   }
 
   render() {
@@ -105,6 +105,7 @@ TrackCardEdit.propTypes = {
   tracker: PropTypes.object.isRequired,
   onSave: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
+  id: PropTypes.string.isRequired,
 };
 
 export default withStyles(styleSheet)(TrackCardEdit);

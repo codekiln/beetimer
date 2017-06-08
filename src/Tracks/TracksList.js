@@ -45,9 +45,9 @@ function getSaveTrackerAction(tracker, isStillEditing = false) {
   };
 }
 
-function getTrackerDeleteAction(tracker) {
+function getTrackerDeleteAction(trackerId) {
   return function({trackers}, props) {
-    const {[tracker.key]: deleted, ...newTrackers} = trackers;
+    const {[trackerId]: deleted, ...newTrackers} = trackers;
     return {
       trackers: {
         // all of the existing trackers except for the removed one
@@ -66,6 +66,7 @@ class Tracks extends Component {
     this.onAddTrackClicked = this.onAddTrackClicked.bind(this);
     this.onSaveTrack       = this.onSaveTrack.bind(this);
     this.onCancelNewTrack  = this.onCancelNewTrack.bind(this);
+    this.onDeleteExistingTrack  = this.onDeleteExistingTrack.bind(this);
 
     this.state = {
       trackers: {}
@@ -106,9 +107,14 @@ class Tracks extends Component {
     this.setState(getSaveTrackerAction(tracker));
   }
 
-  onCancelNewTrack(tracker) {
+  onCancelNewTrack(trackerId) {
     console.log('caught TrackList.onCancelNewTrack:');
-    this.setState(getTrackerDeleteAction(tracker));
+    this.setState(getTrackerDeleteAction(trackerId));
+  }
+
+  onDeleteExistingTrack(trackerId) {
+    console.log('caught TrackList.onDeleteExistingTrack:');
+    this.setState(getTrackerDeleteAction(trackerId));
   }
 
   render() {
@@ -121,9 +127,10 @@ class Tracks extends Component {
           <Grid key={index} item sm={6} xs={12}>
             {
               tracker.editing
-                ? (<TrackCardEdit key={trackerKey} tracker={tracker}
+                ? (<TrackCardEdit key={trackerKey} id={trackerKey} tracker={tracker}
                                   onSave={this.onSaveTrack} onCancel={this.onCancelNewTrack}/>)
-                : (<TrackCardView key={tracker.key} name={tracker.name} description={tracker.description}/>)
+                : (<TrackCardView key={trackerKey} id={trackerKey} name={tracker.name} onDelete={this.onDeleteExistingTrack}
+                                  description={tracker.description}/>)
             }
           </Grid>
         )
@@ -141,8 +148,7 @@ class Tracks extends Component {
         </Grid>
       );
 
-    console.log('tracks rendered: ');
-    console.log(tracks);
+    console.log('tracks rendered');
     return (
       <Grid container className={classes.grid}>
         {tracks}
