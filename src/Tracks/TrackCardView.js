@@ -7,6 +7,7 @@ import IconButton from "material-ui/IconButton";
 import Typography from "material-ui/Typography";
 import {red} from "material-ui/styles/colors";
 import PlayArrowIcon from "material-ui-icons/PlayArrow";
+import PauseIcon from "material-ui-icons/Pause";
 import DeleteIcon from "material-ui-icons/Delete";
 
 const styleSheet = createStyleSheet('TrackCardView', theme => ({
@@ -29,6 +30,8 @@ class TrackCardView extends Component {
     super(props);
 
     this.handleDelete = this.handleDelete.bind(this);
+    this.onPlayPause = this.onPlayPause.bind(this);
+
   }
 
   handleDelete(event) {
@@ -37,9 +40,15 @@ class TrackCardView extends Component {
     this.props.onDelete(this.props.id);
   }
 
+  onPlayPause(event) {
+    event.preventDefault();
+    console.log('Existing Tracker play or pause initiated');
+    this.props.onPlayPause(this.props.id);
+  }
+
   render() {
     const
-      {classes, name, description} = this.props,
+      {classes, name, description, playing} = this.props,
 
       acronym = name
         .split(/\s/)
@@ -60,11 +69,17 @@ class TrackCardView extends Component {
         </CardContent>
       ) : null,
 
+      cardPlayPause = (
+        <IconButton onClick={this.onPlayPause}>
+          {
+            playing ? (<PauseIcon/>) : (<PlayArrowIcon className={classes.playIcon}/>)
+          }
+        </IconButton>
+      ),
+
       cardActions = (
         <CardActions disableActionSpacing>
-          <IconButton>
-            <PlayArrowIcon className={classes.playIcon}/>
-          </IconButton>
+          {cardPlayPause}
           <div className={classes.flexGrow}/>
           <IconButton label="Delete" onClick={this.handleDelete}>
             <DeleteIcon />
@@ -88,6 +103,8 @@ TrackCardView.propTypes = {
   description: PropTypes.string.isRequired,
   onDelete: PropTypes.func.isRequired,
   id: PropTypes.string.isRequired,
+  onPlayPause: PropTypes.func.isRequired,
+  playing: PropTypes.bool.isRequired,
 };
 
 export default withStyles(styleSheet)(TrackCardView);
