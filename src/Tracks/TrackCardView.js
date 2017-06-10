@@ -7,7 +7,7 @@ import Typography from "material-ui/Typography";
 import {red} from "material-ui/styles/colors";
 import PlayArrowIcon from "material-ui-icons/PlayArrow";
 import PauseIcon from "material-ui-icons/Pause";
-import DeleteIcon from "material-ui-icons/Delete";
+import ModeEditIcon from 'material-ui-icons/ModeEdit';
 
 const styleSheet = createStyleSheet('TrackCardView', theme => ({
   card: {maxWidth: 400},
@@ -27,6 +27,7 @@ class TrackCardView extends Component {
 
     this.handleDelete = this.handleDelete.bind(this);
     this.onPlayPause = this.onPlayPause.bind(this);
+    this.onEdit = this.onEdit.bind(this);
 
   }
 
@@ -34,6 +35,12 @@ class TrackCardView extends Component {
     event.preventDefault();
     console.log('Existing Tracker delete initiated');
     this.props.onDelete(this.props.id);
+  }
+
+  onEdit(event) {
+    event.preventDefault();
+    console.log('Existing Tracker edit initiated');
+    this.props.onEdit(this.props.id);
   }
 
   onPlayPause(event) {
@@ -70,8 +77,8 @@ class TrackCardView extends Component {
       cardActions = (
         <CardActions disableActionSpacing>
           <div className={classes.flexGrow}/>
-          <IconButton label="Delete" onClick={this.handleDelete}>
-            <DeleteIcon />
+          <IconButton label="Edit" onClick={this.onEdit}>
+            <ModeEditIcon />
           </IconButton>
         </CardActions>
       );
@@ -91,7 +98,7 @@ TrackCardView.propTypes = {
   description: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  onDelete: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
   onPlayPause: PropTypes.func.isRequired,
   playing: PropTypes.bool.isRequired,
 };
