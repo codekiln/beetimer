@@ -8,7 +8,7 @@ import TrackMessage from './TrackMessage';
 import TrackCardView from './TrackCardView';
 import TrackCardEdit from './TrackCardEdit';
 import UUID from 'uuid/v4';
-// import ModeEditIcon from 'material-ui-icons/ModeEdit';
+
 
 
 const
@@ -39,17 +39,14 @@ const
   }
 ;
 
-function getSaveTrackerAction(tracker, isStillEditing = false) {
+function getSaveTrackerAction(tracker) {
   return function ({trackers}, props) {
     return {
       trackers: {
         // all the existing tracks
         ...trackers,
         // plus the new saved tracker
-        [tracker.id]: {
-          ...tracker,
-          editing: isStillEditing
-        }
+        [tracker.id]: tracker
       }
     };
   };
@@ -94,7 +91,7 @@ class Tracks extends Component {
     Firebase.setOnAuthStateChanged(this.onAuthStateChanged.bind(this));
     this.onAddTrackClicked = this.onAddTrackClicked.bind(this);
     this.onSaveTrack = this.onSaveTrack.bind(this);
-    this.onCancelNewTrack = this.onCancelNewTrack.bind(this);
+    this.onStartEditTrackId = this.onStartEditTrackId.bind(this);
     this.onDeleteExistingTrack = this.onDeleteExistingTrack.bind(this);
     this.onPlayPause = this.onPlayPause.bind(this);
 
@@ -120,23 +117,32 @@ class Tracks extends Component {
   onAddTrackClicked() {
     const newTracker = {
       ...TRACK_DEFAULT_STATE,
-      id: UUID()
+      id: UUID(),
+      editing: true
     };
-
-    this.setState(getSaveTrackerAction(newTracker, true));
+    // 2nd arg sets editing to true
+    this.setState(getSaveTrackerAction(newTracker));
     console.log('caught Tracks.onAddTrackClicked');
     console.log(this.state);
   }
 
   onSaveTrack(tracker) {
+    const trackerToSave = {
+      ...tracker,
+      editing: false
+    };
     console.log('caught TrackList.onSaveTrack:');
-    console.log(tracker);
-    this.setState(getSaveTrackerAction(tracker));
+    console.log(trackerToSave);
+    this.setState(getSaveTrackerAction(trackerToSave));
   }
 
-  onCancelNewTrack(trackerId) {
-    console.log('caught TrackList.onCancelNewTrack:');
-    this.setState(getTrackerDeleteAction(trackerId));
+  onStartEditTrackId(trackerId) {
+    const trackerToEdit = {
+        ...this.state.trackers[trackerId],
+        editing: true
+      };
+    console.log('caught TrackList.onStartEditTrackId:');
+    this.setState(getSaveTrackerAction(trackerToEdit));
   }
 
   onDeleteExistingTrack(trackerId) {
@@ -160,9 +166,9 @@ class Tracks extends Component {
             {
               tracker.editing
                 ? (<TrackCardEdit key={trackerId} id={trackerId} tracker={tracker}
-                                  onSave={this.onSaveTrack} onCancel={this.onCancelNewTrack}/>)
+                                  onSave={this.onSaveTrack} onCancel={this.onDeleteExistingTrack}/>)
                 : (<TrackCardView key={trackerId} id={trackerId} name={tracker.name} playing={tracker.playing}
-                                  onDelete={this.onDeleteExistingTrack} onPlayPause={this.onPlayPause}
+                                  onEdit={this.onStartEditTrackId} onPlayPause={this.onPlayPause}
                                   description={tracker.description}/>)
             }
           </Grid>
