@@ -51,12 +51,12 @@ class TrackCardView extends Component {
 
   render() {
     const
-      {classes, name, description, playing} = this.props,
+      {classes, name, description, sessionId} = this.props,
 
       cardPlayPause = (
         <IconButton onClick={this.onPlayPause}>
           {
-            playing ? (<PauseIcon/>) : (<PlayArrowIcon className={classes.playIcon}/>)
+            sessionId ? (<PauseIcon/>) : (<PlayArrowIcon className={classes.playIcon}/>)
           }
         </IconButton>
       ),
@@ -100,7 +100,7 @@ TrackCardView.propTypes = {
   name: PropTypes.string.isRequired,
   onEdit: PropTypes.func.isRequired,
   onPlayPause: PropTypes.func.isRequired,
-  playing: PropTypes.bool.isRequired,
+  sessionId: PropTypes.string.isRequired,
 };
 
 export default withStyles(styleSheet)(TrackCardView);

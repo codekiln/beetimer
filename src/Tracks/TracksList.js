@@ -10,37 +10,69 @@ import TrackCardEdit from './TrackCardEdit';
 import UUID from 'uuid/v4';
 
 
-
 const
 
   styleSheet = createStyleSheet('Tracks', theme => ({
-    root: {
-      flexGrow: 1,
+    root:         {
+      flexGrow:  1,
       marginTop: 30
     },
-    button: {
+    button:       {
       margin: theme.spacing.unit,
     },
-    grid: theme.mixins.gutters({
-      flexGrow: 1,
+    grid:         theme.mixins.gutters({
+      flexGrow:  1,
       marginTop: 30
     }),
     flashmessage: {
       justify: 'center',
     }
-  })),
-
-  TRACK_DEFAULT_STATE = {
-    id: '',
-    name: '',
-    description: '',
-    editing: true,
-    playing: false
-  }
+  }))
 ;
 
+function getNewTracker() {
+  return {
+    id:          UUID(),
+    name:        '',
+    description: '',
+    editing:     true,
+    sessionId:   '',
+    totalDuration: 0
+  }
+}
+
+function getStartedSession(trackerId) {
+  return {
+    id:         UUID(),
+    trackerId:  trackerId,
+    startedAt:  Date.now(),
+    duration:   0,
+    isComplete: false
+  }
+}
+
+function getFinishedSession(sessionObj) {
+  return {
+    ...sessionObj,
+    duration:   Date.now() - sessionObj.startedAt,
+    isComplete: true
+  }
+}
+
+function getAddTrackerAction() {
+  return function({trackers}, props) {
+    const newTracker = getNewTracker();
+    return {
+      trackers: {
+        ...trackers,
+        [newTracker.id]: newTracker
+      }
+    }
+  };
+}
+
 function getSaveTrackerAction(tracker) {
-  return function ({trackers}, props) {
+  return function({trackers}, props) {
     return {
       trackers: {
         // all the existing tracks
@@ -52,8 +84,9 @@ function getSaveTrackerAction(tracker) {
   };
 }
 
+// TODO: delete sessions upon deleting tracker
 function getTrackerDeleteAction(trackerId) {
-  return function ({trackers}, props) {
+  return function({trackers}, props) {
     const {[trackerId]: deleted, ...newTrackers} = trackers;
     return {
       trackers: {
@@ -65,22 +98,33 @@ function getTrackerDeleteAction(trackerId) {
 }
 
 function getTrackerPlayPauseToggleAction(trackerId) {
-  return function ({trackers}, props) {
+  return function({trackers, sessions}, props) {
     const
-      {[trackerId]: tracker} = trackers;
-    return {
-      trackers: {
-        // all of the other trackers
-        ...trackers,
-        [trackerId]: {
-          // all of the existing props of the tracker toggled
-          ...tracker,
-          // but with the playing toggled
-          playing: !tracker.playing
+      {[trackerId]: tracker} = trackers,
+      session                = tracker.sessionId
+        ? getFinishedSession(sessions[tracker.sessionId])
+        : getStartedSession(trackerId),
+      newState               = {
+        trackers: {
+          // all of the other trackers
+          ...trackers,
+          [trackerId]: {
+            // all of the existing props of the tracker
+            ...tracker,
+            // but with the sessionId toggled
+            sessionId: tracker.sessionId ? '' : session.id
+          }
+        },
+        sessions: {
+          ...sessions,
+          [session.id]: session
         }
-      }
-    };
-  }
+      };
+    console.log(newState);
+    debugger;
+
+    return newState;
+  };
 }
 
 class Tracks extends Component {
@@ -89,14 +133,15 @@ class Tracks extends Component {
     super(props);
 
     Firebase.setOnAuthStateChanged(this.onAuthStateChanged.bind(this));
-    this.onAddTrackClicked = this.onAddTrackClicked.bind(this);
-    this.onSaveTrack = this.onSaveTrack.bind(this);
-    this.onStartEditTrackId = this.onStartEditTrackId.bind(this);
+    this.onAddTrackClicked     = this.onAddTrackClicked.bind(this);
+    this.onSaveTrack           = this.onSaveTrack.bind(this);
+    this.onStartEditTrackId    = this.onStartEditTrackId.bind(this);
     this.onDeleteExistingTrack = this.onDeleteExistingTrack.bind(this);
-    this.onPlayPause = this.onPlayPause.bind(this);
+    this.onPlayPause           = this.onPlayPause.bind(this);
 
     this.state = {
-      trackers: {}
+      trackers: {},
+      sessions: {}
     };
   }
 
@@ -115,13 +160,7 @@ class Tracks extends Component {
   }
 
   onAddTrackClicked() {
-    const newTracker = {
-      ...TRACK_DEFAULT_STATE,
-      id: UUID(),
-      editing: true
-    };
-    // 2nd arg sets editing to true
-    this.setState(getSaveTrackerAction(newTracker));
+    this.setState(getAddTrackerAction());
     console.log('caught Tracks.onAddTrackClicked');
     console.log(this.state);
   }
@@ -138,26 +177,26 @@ class Tracks extends Component {
 
   onStartEditTrackId(trackerId) {
     const trackerToEdit = {
-        ...this.state.trackers[trackerId],
-        editing: true
-      };
+      ...this.state.trackers[trackerId],
+      editing: true
+    };
     console.log('caught TrackList.onStartEditTrackId:');
-    this.setState(getSaveTrackerAction(trackerToEdit));
+    this.setState(getSaveTrackerAction(trackerToEdit), state => console.log(state));
   }
 
   onDeleteExistingTrack(trackerId) {
     console.log('caught TrackList.onDeleteExistingTrack:');
-    this.setState(getTrackerDeleteAction(trackerId));
+    this.setState(getTrackerDeleteAction(trackerId), state => console.log(state));
   }
 
   onPlayPause(trackerId) {
     console.log('caught TrackList.onPlayPause:');
-    this.setState(getTrackerPlayPauseToggleAction(trackerId));
+    this.setState(getTrackerPlayPauseToggleAction(trackerId), state => console.log(state));
   }
 
   render() {
     const
-      classes = this.props.classes,
+      classes     = this.props.classes,
 
       renderTrack = (trackerId, index) => {
         const tracker = this.state.trackers[trackerId];
@@ -167,7 +206,7 @@ class Tracks extends Component {
               tracker.editing
                 ? (<TrackCardEdit key={trackerId} id={trackerId} tracker={tracker}
                                   onSave={this.onSaveTrack} onCancel={this.onDeleteExistingTrack}/>)
-                : (<TrackCardView key={trackerId} id={trackerId} name={tracker.name} playing={tracker.playing}
+                : (<TrackCardView key={trackerId} id={trackerId} name={tracker.name} sessionId={tracker.sessionId}
                                   onEdit={this.onStartEditTrackId} onPlayPause={this.onPlayPause}
                                   description={tracker.description}/>)
             }
@@ -177,7 +216,7 @@ class Tracks extends Component {
 
       trackerKeys = Object.keys(this.state.trackers),
 
-      tracks = trackerKeys.length > 0 ? trackerKeys.map(renderTrack) : (
+      tracks      = trackerKeys.length > 0 ? trackerKeys.map(renderTrack) : (
         <Grid item key={'flashmessage-center'} sm={12} xs={12}>
           <Grid container className={classes.flashmessage} justify="center">
             <Grid item sm={8} xs={8}>
