@@ -112,7 +112,8 @@ function getTrackerPlayPauseToggleAction(trackerId) {
             // all of the existing props of the tracker
             ...tracker,
             // but with the sessionId toggled
-            sessionId: tracker.sessionId ? '' : session.id
+            sessionId: tracker.sessionId ? '' : session.id,
+            totalDuration: tracker.totalDuration + session.duration
           }
         },
         sessions: {
@@ -121,7 +122,6 @@ function getTrackerPlayPauseToggleAction(trackerId) {
         }
       };
     console.log(newState);
-    debugger;
 
     return newState;
   };
@@ -208,6 +208,7 @@ class Tracks extends Component {
                                   onSave={this.onSaveTrack} onCancel={this.onDeleteExistingTrack}/>)
                 : (<TrackCardView key={trackerId} id={trackerId} name={tracker.name} sessionId={tracker.sessionId}
                                   onEdit={this.onStartEditTrackId} onPlayPause={this.onPlayPause}
+                                  totalDuration={tracker.totalDuration}
                                   description={tracker.description}/>)
             }
           </Grid>

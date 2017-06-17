@@ -20,6 +20,41 @@ const styleSheet = createStyleSheet('TrackCardView', theme => ({
 }));
 
 
+function renderTotalDuration(totalDuration) {
+  let
+    diff = totalDuration,
+    phraseComponents = [];
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  diff -=  days * (1000 * 60 * 60 * 24);
+
+  if (days) {
+    phraseComponents.push(`${days} days`)
+  }
+
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  diff -= hours * (1000 * 60 * 60);
+
+  if (hours) {
+    phraseComponents.push(`${hours} hours`)
+  }
+
+  const mins = Math.floor(diff / (1000 * 60));
+  diff -= mins * (1000 * 60);
+
+  if (mins) {
+    phraseComponents.push(`${mins} mins`)
+  }
+
+  const seconds = Math.floor(diff / (1000));
+  diff -= seconds * (1000);
+
+  phraseComponents.push(`${seconds} seconds`);
+
+  return phraseComponents.join(", ")
+}
+
+
 class TrackCardView extends Component {
 
   constructor(props) {
@@ -51,7 +86,8 @@ class TrackCardView extends Component {
 
   render() {
     const
-      {classes, name, description, sessionId} = this.props,
+      {classes, name, description, sessionId, totalDuration} = this.props,
+      renderedTotalDuration = renderTotalDuration(totalDuration),
 
       cardPlayPause = (
         <IconButton onClick={this.onPlayPause}>
@@ -65,6 +101,7 @@ class TrackCardView extends Component {
         <CardHeader
           avatar={cardPlayPause}
           title={name}
+          subheader={renderedTotalDuration}
         />
       ),
 
@@ -101,6 +138,7 @@ TrackCardView.propTypes = {
   onEdit: PropTypes.func.isRequired,
   onPlayPause: PropTypes.func.isRequired,
   sessionId: PropTypes.string.isRequired,
+  totalDuration: PropTypes.number.isRequired,
 };
 
 export default withStyles(styleSheet)(TrackCardView);
