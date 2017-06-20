@@ -86,7 +86,8 @@ class TrackCardView extends Component {
 
   render() {
     const
-      {classes, name, description, sessionId, totalDuration} = this.props,
+      {classes, name, description, sessionId, totalDuration, sessionDuration} = this.props,
+      renderedSessionDuration = renderTotalDuration(sessionDuration),
       renderedTotalDuration = renderTotalDuration(totalDuration),
 
       cardPlayPause = (
@@ -101,7 +102,7 @@ class TrackCardView extends Component {
         <CardHeader
           avatar={cardPlayPause}
           title={name}
-          subheader={renderedTotalDuration}
+          subheader={`${renderedSessionDuration}/${renderedTotalDuration}`}
         />
       ),
 
@@ -139,6 +140,7 @@ TrackCardView.propTypes = {
   onPlayPause: PropTypes.func.isRequired,
   sessionId: PropTypes.string.isRequired,
   totalDuration: PropTypes.number.isRequired,
+  sessionDuration: PropTypes.number.isRequired,
 };
 
 export default withStyles(styleSheet)(TrackCardView);
