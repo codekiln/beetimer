@@ -32,11 +32,11 @@ const
 
 function getNewTracker() {
   return {
-    id:          UUID(),
-    name:        '',
-    description: '',
-    editing:     true,
-    sessionId:   '',
+    id:            UUID(),
+    name:          '',
+    description:   '',
+    editing:       true,
+    sessionId:     '',
     totalDuration: 0
   }
 }
@@ -101,9 +101,23 @@ function getTrackerPlayPauseToggleAction(trackerId) {
   return function({trackers, sessions}, props) {
     const
       {[trackerId]: tracker} = trackers,
+
       session                = tracker.sessionId
         ? getFinishedSession(sessions[tracker.sessionId])
         : getStartedSession(trackerId),
+
+      newSessions = {
+          ...sessions,
+          [session.id]: session
+      },
+
+      // iterate through new sessions. if session id matches tracker.id,
+      // matches given then add the session duration to the total.
+      totalDuration = reduceObj(
+        (total, sess) => sess.trackerId === tracker.id
+          ? total + sess.duration : 0,
+        0, newSessions),
+
       newState               = {
         trackers: {
           // all of the other trackers
@@ -112,18 +126,75 @@ function getTrackerPlayPauseToggleAction(trackerId) {
             // all of the existing props of the tracker
             ...tracker,
             // but with the sessionId toggled
-            sessionId: tracker.sessionId ? '' : session.id,
-            totalDuration: tracker.totalDuration + session.duration
+            sessionId:     tracker.sessionId ? '' : session.id,
+            totalDuration: totalDuration
           }
         },
-        sessions: {
-          ...sessions,
-          [session.id]: session
-        }
+        sessions: newSessions
       };
+
     console.log(newState);
 
     return newState;
+  };
+}
+
+function reduceObj(reducer, accumulator, object) {
+  return Object.keys(object).reduce(function(accumulator, key) {
+    return reducer(accumulator, object[key], key, object)
+  }, accumulator);
+}
+
+function filterAndAssignObj(object, filterer, assigner = (k, v) => ({[k]: v})) {
+  return reduceObj(
+    function(accumulator, objValue, objKey, reduceObject) {
+      return filterer(objValue, reduceObject)
+        ? Object.assign(accumulator, assigner(objKey, objValue))
+        : accumulator
+    },
+    {}, object
+  );
+}
+
+function getAdvanceTimeAction() {
+  return function({trackers, sessions}, props) {
+    const
+      amountToAdvanceTimeInMS = 1000,
+
+      trackerFilter           = (tracker) => tracker.sessionId,
+      trackerAssign           = (trackerId, tracker) => ({
+        [trackerId]: {
+          ...tracker,
+          totalDuration: tracker.totalDuration + amountToAdvanceTimeInMS
+        }
+      }),
+      trackersInProgress      = trackers
+        ? filterAndAssignObj(trackers, trackerFilter, trackerAssign) : {},
+
+      sessionFilter           = (session) => !session.isComplete,
+      sessionAssign           = (sessionId, session) => ({
+        [sessionId]: {
+          ...session,
+          duration: session.duration + amountToAdvanceTimeInMS
+        }
+      }),
+      sessionsInProgress      = sessions
+        ? filterAndAssignObj(sessions, sessionFilter, sessionAssign) : {},
+
+      newState                = {
+        trackers: {
+          ...trackers,
+          ...trackersInProgress
+        },
+        sessions: {
+          ...sessions,
+          ...sessionsInProgress
+        }
+      };
+
+    console.log('getAdvanceTimeAction: after state:');
+    console.log(newState);
+    return newState
   };
 }
 
@@ -146,7 +217,14 @@ class Tracks extends Component {
   }
 
   componentDidMount() {
+    this.timerID = setInterval(
+      () => this.onAdvanceTime(),
+      1000
+    )
+  }
 
+  componentWillUnmount() {
+    clearInterval(this.timerID)
   }
 
   onAuthStateChanged(user) {
@@ -175,6 +253,10 @@ class Tracks extends Component {
     this.setState(getSaveTrackerAction(trackerToSave));
   }
 
+  onAdvanceTime() {
+    this.setState(getAdvanceTimeAction(), state => console.log(state))
+  }
+
   onStartEditTrackId(trackerId) {
     const trackerToEdit = {
       ...this.state.trackers[trackerId],
@@ -199,23 +281,29 @@ class Tracks extends Component {
       classes     = this.props.classes,
 
       renderTrack = (trackerId, index) => {
-        const tracker = this.state.trackers[trackerId];
+        const
+          tracker         = this.state.trackers[trackerId],
+          session         = tracker.sessionId ? this.state.sessions[tracker.sessionId] : null,
+          sessionDuration = session ? session.duration : 0
+        ;
         return (
           <Grid key={index} item sm={6} xs={12}>
             {
               tracker.editing
                 ? (<TrackCardEdit key={trackerId} id={trackerId} tracker={tracker}
                                   onSave={this.onSaveTrack} onCancel={this.onDeleteExistingTrack}/>)
-                : (<TrackCardView key={trackerId} id={trackerId} name={tracker.name} sessionId={tracker.sessionId}
+                : (<TrackCardView key={trackerId} id={trackerId} name={tracker.name}
+                                  sessionId={tracker.sessionId}
                                   onEdit={this.onStartEditTrackId} onPlayPause={this.onPlayPause}
                                   totalDuration={tracker.totalDuration}
+                                  sessionDuration={sessionDuration}
                                   description={tracker.description}/>)
             }
           </Grid>
         )
       },
 
-      trackerKeys = Object.keys(this.state.trackers),
+      trackerKeys = this.state.trackers ? Object.keys(this.state.trackers) : [],
 
       tracks      = trackerKeys.length > 0 ? trackerKeys.map(renderTrack) : (
         <Grid item key={'flashmessage-center'} sm={12} xs={12}>
