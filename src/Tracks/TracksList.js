@@ -106,6 +106,18 @@ function getTrackerPlayPauseToggleAction(trackerId) {
         ? getFinishedSession(sessions[tracker.sessionId])
         : getStartedSession(trackerId),
 
+      newSessions = {
+          ...sessions,
+          [session.id]: session
+      },
+
+      // iterate through new sessions. if session id matches tracker.id,
+      // matches given then add the session duration to the total.
+      totalDuration = reduceObj(
+        (total, sess) => sess.trackerId === tracker.id
+          ? total + sess.duration : 0,
+        0, newSessions),
+
       newState               = {
         trackers: {
           // all of the other trackers
@@ -115,13 +127,10 @@ function getTrackerPlayPauseToggleAction(trackerId) {
             ...tracker,
             // but with the sessionId toggled
             sessionId:     tracker.sessionId ? '' : session.id,
-            totalDuration: tracker.totalDuration + session.duration
+            totalDuration: totalDuration
           }
         },
-        sessions: {
-          ...sessions,
-          [session.id]: session
-        }
+        sessions: newSessions
       };
 
     console.log(newState);
