@@ -106,14 +106,14 @@ function getTrackerPlayPauseToggleAction(trackerId) {
         ? getFinishedSession(sessions[tracker.sessionId])
         : getStartedSession(trackerId),
 
-      newSessions = {
-          ...sessions,
-          [session.id]: session
+      newSessions            = {
+        ...sessions,
+        [session.id]: session
       },
 
       // iterate through new sessions. if session id matches tracker.id,
       // matches given then add the session duration to the total.
-      totalDuration = reduceObj(
+      totalDuration          = reduceObj(
         (total, sess) => sess.trackerId === tracker.id
           ? total + sess.duration : 0,
         0, newSessions),
@@ -192,8 +192,8 @@ function getAdvanceTimeAction() {
         }
       };
 
-    console.log('getAdvanceTimeAction: after state:');
-    console.log(newState);
+    // console.log('getAdvanceTimeAction: after state:');
+    // console.log(newState);
     return newState
   };
 }
@@ -209,6 +209,7 @@ class Tracks extends Component {
     this.onStartEditTrackId    = this.onStartEditTrackId.bind(this);
     this.onDeleteExistingTrack = this.onDeleteExistingTrack.bind(this);
     this.onPlayPause           = this.onPlayPause.bind(this);
+    this.persistToDatabase     = this.persistToDatabase.bind(this);
 
     this.state = {
       trackers: {},
@@ -230,6 +231,7 @@ class Tracks extends Component {
   onAuthStateChanged(user) {
     if (user) {
       // firebase TBD
+      // console.log(user)
     } else {
       // firebase TBD
     }
@@ -250,11 +252,19 @@ class Tracks extends Component {
     };
     console.log('caught TrackList.onSaveTrack:');
     console.log(trackerToSave);
-    this.setState(getSaveTrackerAction(trackerToSave));
+    // this.setState(getSaveTrackerAction(trackerToSave), state => saveToFirebase(state));
+    this.setState(getSaveTrackerAction(trackerToSave), this.persistToDatabase);
+  }
+
+  persistToDatabase(state) {
+    console.log('inside persistToDatabase:');
+    console.log(state);
+    console.log(this.state);
+    Firebase.set(this.state);
   }
 
   onAdvanceTime() {
-    this.setState(getAdvanceTimeAction(), state => console.log(state))
+    this.setState(getAdvanceTimeAction(), this.persistToDatabase)
   }
 
   onStartEditTrackId(trackerId) {
@@ -268,12 +278,12 @@ class Tracks extends Component {
 
   onDeleteExistingTrack(trackerId) {
     console.log('caught TrackList.onDeleteExistingTrack:');
-    this.setState(getTrackerDeleteAction(trackerId), state => console.log(state));
+    this.setState(getTrackerDeleteAction(trackerId), this.persistToDatabase);
   }
 
   onPlayPause(trackerId) {
     console.log('caught TrackList.onPlayPause:');
-    this.setState(getTrackerPlayPauseToggleAction(trackerId), state => console.log(state));
+    this.setState(getTrackerPlayPauseToggleAction(trackerId), this.persistToDatabase);
   }
 
   render() {
@@ -315,7 +325,6 @@ class Tracks extends Component {
         </Grid>
       );
 
-    console.log('tracks rendered');
     return (
       <Grid container className={classes.grid}>
         {tracks}

@@ -26,6 +26,15 @@ class FirebaseConnection {
     this.setOnAuthStateChanged(this.onAuthStateChanged.bind(this));
   }
 
+  set(state) {
+    if (this.auth.currentUser) {
+      const
+        dbref = this.database.ref(`users/${this.auth.currentUser.uid}`)
+      ;
+      dbref.set(state);
+    }
+  }
+
   signIn() {
     // Sign in Firebase using popup auth and Google as the identity provider.
     const provider = new firebase.auth.GoogleAuthProvider();
