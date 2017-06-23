@@ -114,8 +114,17 @@ function getTrackerPlayPauseToggleAction(trackerId) {
       // iterate through new sessions. if session id matches tracker.id,
       // matches given then add the session duration to the total.
       totalDuration          = reduceObj(
-        (total, sess) => sess.trackerId === tracker.id
-          ? total + sess.duration : 0,
+        (total, sess) => {
+          if (sess.trackerId === tracker.id) {
+            const newTotal = total + sess.duration
+            console.log(`found session ${JSON.stringify(sess, null, 2)} matching tracker id ${tracker.id}; total is ${newTotal}`)
+            return newTotal
+          } else {
+            console.log(`session doesn't match tracker id ${tracker.id}:`);
+            console.log(sess);
+            return 0
+          }
+        },
         0, newSessions),
 
       newState               = {
@@ -231,9 +240,15 @@ class Tracks extends Component {
   onAuthStateChanged(user) {
     if (user) {
       // firebase TBD
-      // console.log(user)
+      Firebase.get().then(snapshot => {
+        const snapshotValue = snapshot.val();
+        console.log('onAuthStateChanged retrieved database state; now setting state:');
+        console.log(snapshotValue);
+        this.setState((state, props) => snapshotValue)
+      });
+
     } else {
-      // firebase TBD
+      // user not logged in
     }
     console.log('caught Tracks.onAuthStateChanged');
     console.log(this.state);
@@ -252,19 +267,22 @@ class Tracks extends Component {
     };
     console.log('caught TrackList.onSaveTrack:');
     console.log(trackerToSave);
-    // this.setState(getSaveTrackerAction(trackerToSave), state => saveToFirebase(state));
     this.setState(getSaveTrackerAction(trackerToSave), this.persistToDatabase);
   }
 
   persistToDatabase(state) {
-    console.log('inside persistToDatabase:');
-    console.log(state);
-    console.log(this.state);
+    // console.log('inside persistToDatabase:');
+    // for some reason, even though this is called in a setState callback,
+    // state is not passed, so we have to use this.state
+    // console.log(state);
+    // console.log(this.state);
     Firebase.set(this.state);
   }
 
   onAdvanceTime() {
-    this.setState(getAdvanceTimeAction(), this.persistToDatabase)
+    this.setState(getAdvanceTimeAction()
+      , this.persistToDatabase
+    )
   }
 
   onStartEditTrackId(trackerId) {
