@@ -26,6 +26,16 @@ class FirebaseConnection {
     this.setOnAuthStateChanged(this.onAuthStateChanged.bind(this));
   }
 
+  get() {
+    if (this.auth.currentUser) {
+      const
+        dbref = this.database.ref(`users/${this.auth.currentUser.uid}`)
+      ;
+      // returns a promise
+      return dbref.once('value');
+    }
+  }
+
   set(state) {
     if (this.auth.currentUser) {
       const
