@@ -84,14 +84,20 @@ function getSaveTrackerAction(tracker) {
   };
 }
 
-// TODO: delete sessions upon deleting tracker
 function getTrackerDeleteAction(trackerId) {
-  return function({trackers}, props) {
-    const {[trackerId]: deleted, ...newTrackers} = trackers;
+  return function({trackers, sessions}, props) {
+    const
+      {[trackerId]: deleted, ...newTrackers} = trackers,
+      newSessions                            = filterAndAssignObj(
+        sessions, (session) => !(session.trackerId === trackerId))
+    ;
     return {
       trackers: {
         // all of the existing trackers except for the removed one
         ...newTrackers
+      },
+      sessions: {
+        ...newSessions
       }
     };
   }
