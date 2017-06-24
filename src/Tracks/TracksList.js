@@ -120,7 +120,7 @@ function getTrackerPlayPauseToggleAction(trackerId) {
       // iterate through new sessions. if session id matches tracker.id,
       // matches given then add the session duration to the total.
       totalDuration          = reduceObj(
-        (total, sess) => total + (sess.trackerId === tracker.id) ? sess.duration : 0,
+        (total, sess) => (sess.trackerId === tracker.id) ? total + sess.duration : total,
         0, newSessions),
 
       newState               = {
