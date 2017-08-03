@@ -67,9 +67,16 @@ export default class App extends Component {
     Firebase.signIn().then(this.handleLoginDialogClosed.bind(this));
   }
 
+  handleLogoutClicked() {
+    console.log('caught sign out in App.js');
+    Firebase.auth.signOut();
+  }
+
   render() {
     const loginZone = this.state.userName ?
-      <UserAvatar displayName={this.state.userName} imageUrl={this.state.userProfilePicUrl}/> :
+      <UserAvatar displayName={this.state.userName}
+                  imageUrl={this.state.userProfilePicUrl}
+                  onLogout={this.handleLogoutClicked}/> :
       <Button contrast onClick={this.handleLoginClicked}>Login</Button>;
 
     return (
