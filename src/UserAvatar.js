@@ -20,54 +20,26 @@ const styleSheet = createStyleSheet('UserAvatar', theme => ({
   },
 }));
 
-function handleRequestDelete() {
-  alert('You clicked the delete icon.'); // eslint-disable-line no-alert
-}
-
-// function handleClick() {
-//   alert('You clicked the Chip.'); // eslint-disable-line no-alert
-// }
 
 function UserAvatar(props) {
+
   const classes = props.classes;
+
   return (
     <Chip
       avatar={<Avatar src={props.imageUrl} />}
       label={props.displayName}
-      onRequestDelete={handleRequestDelete}
+      onRequestDelete={props.onLogout}
       className={classes.chip}
     />
   )
-  // return (
-  //   <div className={classes.row}>
-  //     <Chip label="Basic Chip" className={classes.chip} />
-  //     <Chip
-  //       avatar={<Avatar>MB</Avatar>}
-  //       label={props.displayName}
-  //       onClick={handleClick}
-  //       className={classes.chip}
-  //     />
-  //     <Chip
-  //       avatar={<Avatar src={props.imageUrl} />}
-  //       label={props.displayName}
-  //       onRequestDelete={handleRequestDelete}
-  //       className={classes.chip}
-  //     />
-  //     <Chip
-  //       avatar={<Avatar><FaceIcon className={classes.svgIcon} /></Avatar>}
-  //       label={props.displayName}
-  //       onClick={handleClick}
-  //       onRequestDelete={handleRequestDelete}
-  //       className={classes.chip}
-  //     />
-  //   </div>
-  // );
 }
 
 UserAvatar.propTypes = {
   classes: PropTypes.object.isRequired,
   displayName: PropTypes.string.isRequired,
   imageUrl: PropTypes.string.isRequired,
+  onLogout: PropTypes.func.isRequired
 };
 
 export default withStyles(styleSheet)(UserAvatar);

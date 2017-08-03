@@ -218,7 +218,8 @@ class Tracks extends Component {
 
     this.state = {
       trackers: {},
-      sessions: {}
+      sessions: {},
+      loggedIn: false
     };
   }
 
@@ -235,18 +236,16 @@ class Tracks extends Component {
 
   onAuthStateChanged(user) {
     if (user) {
-      // firebase TBD
       Firebase.get().then(snapshot => {
         const snapshotValue = snapshot.val();
         console.log('onAuthStateChanged retrieved database state; now setting state:');
         console.log(snapshotValue);
-        this.setState((state, props) => snapshotValue)
+        this.setState((state, props) => ({...snapshotValue, loggedIn: true}))
       });
-
     } else {
-      // user not logged in
+      console.log('caught Tracks.onAuthStateChanged WITHOUT user');
+      this.setState((state, props) => ({sessions: {}, trackers: {}, loggedIn: false}))
     }
-    console.log('caught Tracks.onAuthStateChanged');
     console.log(this.state);
   }
 
@@ -267,11 +266,6 @@ class Tracks extends Component {
   }
 
   persistToDatabase(state) {
-    // console.log('inside persistToDatabase:');
-    // for some reason, even though this is called in a setState callback,
-    // state is not passed, so we have to use this.state
-    // console.log(state);
-    // console.log(this.state);
     Firebase.set(this.state);
   }
 
@@ -344,7 +338,7 @@ class Tracks extends Component {
         {tracks}
         <Grid item xs={12}>
           <Button fab accent className={classes.button} onClick={this.onAddTrackClicked}>
-            <AddIcon />
+            <AddIcon/>
           </Button>
         </Grid>
       </Grid>

@@ -15,6 +15,7 @@ firebase.initializeApp(firebaseConfig);
  * Encapsulate the connection to Firebase with a simple class
  */
 class FirebaseConnection {
+
   constructor() {
 
     // Shortcuts to Firebase SDK features.
