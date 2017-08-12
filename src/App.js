@@ -12,37 +12,49 @@ export default class App extends Component {
   constructor(props) {
     super(props);
 
-    this.handleLoginClicked = this.handleLoginClicked.bind(this);
+    this.handleLoginClicked      = this.handleLoginClicked.bind(this);
     this.handleLoginDialogOpened = this.handleLoginDialogOpened.bind(this);
     this.handleLoginDialogClosed = this.handleLoginDialogClosed.bind(this);
-
-    Firebase.setOnAuthStateChanged(this.onAuthStateChanged.bind(this));
+    this.handleDatabaseUpdate    = this.handleDatabaseUpdate.bind(this);
+    this.handleLogoutClicked     = this.handleLogoutClicked.bind(this);
 
     this.state = {
-      loginDialogOpen: false,
-      userName: '',
+      loginDialogOpen:   false,
+      userName:          '',
       userProfilePicUrl: ''
     };
   }
 
   componentDidMount() {
-
+    Firebase.subscribe(this);
   }
 
-  onAuthStateChanged(user) {
-    if (user) {
+  componentWillUnmount() {
+    Firebase.unsubscribe(this);
+  }
+
+  /**
+   * Our custom Firebase adaptor has subscribe() and unsubscribe()
+   * methods called from componentDidMount() and componentWillMount().
+   *
+   * When subscribed, listeners' get notified of database updates
+   * with this method.
+   * @param firebaseState
+   * @param firebaseUser
+   */
+  handleDatabaseUpdate(firebaseState, firebaseUser) {
+    console.log('caught App.handleDatabaseUpdate', firebaseState, firebaseUser);
+    if (firebaseUser) {
       this.setState({
-        userName: user.displayName,
-        userProfilePicUrl: user.photoURL
+        userName:          firebaseUser.displayName,
+        userProfilePicUrl: firebaseUser.photoURL
       });
     } else {
       this.setState({
-        userName: '',
+        userName:          '',
         userProfilePicUrl: ''
       });
     }
-    console.log('caught App.onAuthStateChanged');
-    console.log(this.state);
   }
 
   handleLoginDialogOpened() {
@@ -70,6 +82,10 @@ export default class App extends Component {
   handleLogoutClicked() {
     console.log('caught sign out in App.js');
     Firebase.auth.signOut();
+    this.setState({
+      userName:          '',
+      userProfilePicUrl: ''
+    });
   }
 
   render() {
@@ -83,7 +99,7 @@ export default class App extends Component {
       <MuiThemeProvider>
         <MainLayout
           header={
-            <TopBar >
+            <TopBar>
               {loginZone}
             </TopBar>
           }>

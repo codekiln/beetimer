@@ -208,13 +208,13 @@ class Tracks extends Component {
   constructor(props) {
     super(props);
 
-    Firebase.setOnAuthStateChanged(this.onAuthStateChanged.bind(this));
     this.onAddTrackClicked     = this.onAddTrackClicked.bind(this);
     this.onSaveTrack           = this.onSaveTrack.bind(this);
     this.onStartEditTrackId    = this.onStartEditTrackId.bind(this);
     this.onDeleteExistingTrack = this.onDeleteExistingTrack.bind(this);
     this.onPlayPause           = this.onPlayPause.bind(this);
     this.persistToDatabase     = this.persistToDatabase.bind(this);
+    this.handleDatabaseUpdate  = this.handleDatabaseUpdate.bind(this);
 
     this.state = {
       trackers: {},
@@ -227,26 +227,33 @@ class Tracks extends Component {
     this.timerID = setInterval(
       () => this.onAdvanceTime(),
       1000
-    )
+    );
+    Firebase.subscribe(this);
   }
 
   componentWillUnmount() {
-    clearInterval(this.timerID)
+    clearInterval(this.timerID);
+    Firebase.unsubscribe(this);
   }
 
-  onAuthStateChanged(user) {
-    if (user) {
-      Firebase.get().then(snapshot => {
-        const snapshotValue = snapshot.val();
-        console.log('onAuthStateChanged retrieved database state; now setting state:');
-        console.log(snapshotValue);
-        this.setState((state, props) => ({...snapshotValue, loggedIn: true}))
-      });
+  /**
+   * Our custom Firebase adaptor has subscribe() and unsubscribe()
+   * methods called from componentDidMount() and componentWillMount().
+   *
+   * When subscribed, listeners' get notified of database updates
+   * with this method.
+   * @param firebaseState
+   * @param firebaseUser
+   */
+  handleDatabaseUpdate(firebaseState, firebaseUser) {
+    if (firebaseUser) {
+      console.log('caught TracksList.handleDatabaseUpdate WITH user',
+        firebaseState, firebaseUser);
+      this.setState((state, props) => ({...firebaseState, loggedIn: true}))
     } else {
       console.log('caught Tracks.onAuthStateChanged WITHOUT user');
       this.setState((state, props) => ({sessions: {}, trackers: {}, loggedIn: false}))
     }
-    console.log(this.state);
   }
 
   onAddTrackClicked() {
