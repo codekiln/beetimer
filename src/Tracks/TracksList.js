@@ -32,30 +32,33 @@ const
 
 function getNewTracker() {
   return {
-    id:            UUID(),
-    name:          '',
-    description:   '',
-    editing:       true,
-    sessionId:     '',
-    totalDuration: 0
+    id:                       UUID(),
+    name:                     '',
+    description:              '',
+    editing:                  true,
+    sessionId:                '',
+    sessionElapsed:           0,
+    // the total duration BEFORE the session if any
+    completedSessionDuration: 0
   }
 }
 
 function getStartedSession(trackerId) {
   return {
-    id:         UUID(),
-    trackerId:  trackerId,
-    startedAt:  Date.now(),
-    duration:   0,
-    isComplete: false
+    id:            UUID(),
+    trackerId:     trackerId,
+    startedAt:     Date.now(),
+    elapsed:       0,
+    // will be zero until finished
+    finalDuration: 0
   }
 }
 
 function getFinishedSession(sessionObj) {
   return {
     ...sessionObj,
-    duration:   Date.now() - sessionObj.startedAt,
-    isComplete: true
+    elapsed:       0,
+    finalDuration: Date.now() - sessionObj.startedAt
   }
 }
 
@@ -106,24 +109,25 @@ function getTrackerDeleteAction(trackerId) {
 function getTrackerPlayPauseToggleAction(trackerId) {
   return function({trackers, sessions}, props) {
     const
-      {[trackerId]: tracker} = trackers,
+      {[trackerId]: tracker}   = trackers,
 
-      session                = tracker.sessionId
+      session                  = tracker.sessionId
         ? getFinishedSession(sessions[tracker.sessionId])
         : getStartedSession(trackerId),
 
-      newSessions            = {
+      newSessions              = {
         ...sessions,
         [session.id]: session
       },
 
       // iterate through new sessions. if session id matches tracker.id,
       // matches given then add the session duration to the total.
-      totalDuration          = reduceObj(
-        (total, sess) => (sess.trackerId === tracker.id) ? total + sess.duration : total,
+      completedSessionDuration = reduceObj(
+        (total, sess) => (sess.trackerId === tracker.id)
+          ? total + sess.finalDuration : total,
         0, newSessions),
 
-      newState               = {
+      newState                 = {
         trackers: {
           // all of the other trackers
           ...trackers,
@@ -131,8 +135,9 @@ function getTrackerPlayPauseToggleAction(trackerId) {
             // all of the existing props of the tracker
             ...tracker,
             // but with the sessionId toggled
-            sessionId:     tracker.sessionId ? '' : session.id,
-            totalDuration: totalDuration
+            sessionId:                tracker.sessionId ? '' : session.id,
+            sessionElapsed:           session.elapsed,
+            completedSessionDuration: completedSessionDuration
           }
         },
         sessions: newSessions
@@ -164,29 +169,37 @@ function filterAndAssignObj(object, filterer, assigner = (k, v) => ({[k]: v})) {
 function getAdvanceTimeAction() {
   return function({trackers, sessions}, props) {
     const
-      amountToAdvanceTimeInMS = 1000,
-
-      trackerFilter           = (tracker) => tracker.sessionId,
-      trackerAssign           = (trackerId, tracker) => ({
-        [trackerId]: {
-          ...tracker,
-          totalDuration: tracker.totalDuration + amountToAdvanceTimeInMS
-        }
-      }),
-      trackersInProgress      = trackers
-        ? filterAndAssignObj(trackers, trackerFilter, trackerAssign) : {},
-
-      sessionFilter           = (session) => !session.isComplete,
-      sessionAssign           = (sessionId, session) => ({
+      // only the sessions with final duration equal to zero are in progress
+      sessionFilter      = (session) => session.finalDuration === 0,
+      sessionAssign      = (sessionId, session) => ({
         [sessionId]: {
           ...session,
-          duration: session.duration + amountToAdvanceTimeInMS
+          elapsed: Date.now() - session.startedAt
         }
       }),
-      sessionsInProgress      = sessions
+      sessionsInProgress = sessions
         ? filterAndAssignObj(sessions, sessionFilter, sessionAssign) : {},
 
-      newState                = {
+      trackerFilter      = (tracker) => tracker.sessionId,
+      trackerAssign      = (trackerId, tracker) => {
+        const
+          // get the elapsed duration for this in progress tracker
+          sessionElapsed = reduceObj(
+            (total, sess) => (sess.trackerId === tracker.id)
+              ? total + sess.elapsed : total,
+            0, sessionsInProgress);
+
+        return {
+          [trackerId]: {
+            ...tracker,
+            sessionElapsed: sessionElapsed
+          }
+        }
+      },
+      trackersInProgress = trackers
+        ? filterAndAssignObj(trackers, trackerFilter, trackerAssign) : {},
+
+      newState           = {
         trackers: {
           ...trackers,
           ...trackersInProgress
@@ -309,7 +322,8 @@ class Tracks extends Component {
         const
           tracker         = this.state.trackers[trackerId],
           session         = tracker.sessionId ? this.state.sessions[tracker.sessionId] : null,
-          sessionDuration = session ? session.duration : 0
+          sessionDuration = session ? session.elapsed + session.finalDuration : 0,
+          totalDuration   = tracker.completedSessionDuration + tracker.sessionElapsed
         ;
         return (
           <Grid key={index} item sm={6} xs={12}>
@@ -320,7 +334,7 @@ class Tracks extends Component {
                 : (<TrackCardView key={trackerId} id={trackerId} name={tracker.name}
                                   sessionId={tracker.sessionId}
                                   onEdit={this.onStartEditTrackId} onPlayPause={this.onPlayPause}
-                                  totalDuration={tracker.totalDuration}
+                                  totalDuration={totalDuration}
                                   sessionDuration={sessionDuration}
                                   description={tracker.description}/>)
             }
