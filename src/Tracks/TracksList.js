@@ -30,6 +30,7 @@ const
   }))
 ;
 
+
 function getNewTracker() {
   return {
     id:                       UUID(),
@@ -37,30 +38,34 @@ function getNewTracker() {
     description:              '',
     editing:                  true,
     sessionId:                '',
-    sessionElapsed:           0,
+    _sessionElapsed:          0,
     // the total duration BEFORE the session if any
     completedSessionDuration: 0
   }
 }
 
+
 function getStartedSession(trackerId) {
   return {
     id:            UUID(),
     trackerId:     trackerId,
+      // TODO: use Firebase.ServerValue.TIMESTAMP here
     startedAt:     Date.now(),
-    elapsed:       0,
+    _elapsed:      0,
     // will be zero until finished
     finalDuration: 0
   }
 }
 
+
 function getFinishedSession(sessionObj) {
   return {
     ...sessionObj,
-    elapsed:       0,
+    _elapsed:      0,
     finalDuration: Date.now() - sessionObj.startedAt
   }
 }
+
 
 function getAddTrackerAction() {
   return function({trackers}, props) {
@@ -74,6 +79,7 @@ function getAddTrackerAction() {
   };
 }
 
+
 function getSaveTrackerAction(tracker) {
   return function({trackers}, props) {
     return {
@@ -86,6 +92,7 @@ function getSaveTrackerAction(tracker) {
     };
   };
 }
+
 
 function getTrackerDeleteAction(trackerId) {
   return function({trackers, sessions}, props) {
@@ -105,6 +112,7 @@ function getTrackerDeleteAction(trackerId) {
     };
   }
 }
+
 
 function getTrackerPlayPauseToggleAction(trackerId) {
   return function({trackers, sessions}, props) {
@@ -136,7 +144,7 @@ function getTrackerPlayPauseToggleAction(trackerId) {
             ...tracker,
             // but with the sessionId toggled
             sessionId:                tracker.sessionId ? '' : session.id,
-            sessionElapsed:           session.elapsed,
+            _sessionElapsed:          session._elapsed,
             completedSessionDuration: completedSessionDuration
           }
         },
@@ -149,11 +157,13 @@ function getTrackerPlayPauseToggleAction(trackerId) {
   };
 }
 
+
 function reduceObj(reducer, accumulator, object) {
   return Object.keys(object).reduce(function(accumulator, key) {
     return reducer(accumulator, object[key], key, object)
   }, accumulator);
 }
+
 
 function filterAndAssignObj(object, filterer, assigner = (k, v) => ({[k]: v})) {
   return reduceObj(
@@ -166,6 +176,14 @@ function filterAndAssignObj(object, filterer, assigner = (k, v) => ({[k]: v})) {
   );
 }
 
+/**
+ * TracksList.onComponentDidMount() gives this function an opportunity to
+ * change state every second. It calculates the local time elapsed of each
+ * in-progress timer, calculating it in session._elapsed and
+ * tracker._sessionElapsed. These properties are not persisted to firebase;
+ * they are for local display only.
+ * @returns {Function}
+ */
 function getAdvanceTimeAction() {
   return function({trackers, sessions}, props) {
     const
@@ -174,7 +192,7 @@ function getAdvanceTimeAction() {
       sessionAssign      = (sessionId, session) => ({
         [sessionId]: {
           ...session,
-          elapsed: Date.now() - session.startedAt
+          _elapsed: Date.now() - session.startedAt
         }
       }),
       sessionsInProgress = sessions
@@ -184,15 +202,15 @@ function getAdvanceTimeAction() {
       trackerAssign      = (trackerId, tracker) => {
         const
           // get the elapsed duration for this in progress tracker
-          sessionElapsed = reduceObj(
+          _sessionElapsed = reduceObj(
             (total, sess) => (sess.trackerId === tracker.id)
-              ? total + sess.elapsed : total,
+              ? total + sess._elapsed : total,
             0, sessionsInProgress);
 
         return {
           [trackerId]: {
             ...tracker,
-            sessionElapsed: sessionElapsed
+            _sessionElapsed: _sessionElapsed
           }
         }
       },
@@ -212,9 +230,53 @@ function getAdvanceTimeAction() {
 
     // console.log('getAdvanceTimeAction: after state:');
     // console.log(newState);
+    return newState;
+  };
+}
+
+
+/**
+ * TracksList.componentDidMound() subscribes to updates from our Firebase
+ * adaptor, which uses this mutator to alter state.
+ * @param firebaseState to update
+ * @returns new local state
+ */
+function getUpdateFromFirebaseAction(firebaseState) {
+
+  return function({trackers, sessions}, props) {
+    const
+
+      newState                           = {
+        trackers: {
+          ...trackers,
+          ...firebaseState.trackers,
+        },
+        sessions: {
+          ...sessions,
+          ...firebaseState.sessions,
+        }
+      };
+
+    // console.log('getAdvanceTimeAction: after state:');
+    // console.log(newState);
     return newState
   };
 }
+
+
+function getLogoutAction() {
+  return function(state, props) {
+
+    const newState = {
+      trackers: {},
+      sessions: {},
+      loggedIn: false
+    };
+
+    return newState
+  };
+}
+
 
 class Tracks extends Component {
 
@@ -258,14 +320,14 @@ class Tracks extends Component {
    * @param firebaseState
    * @param firebaseUser
    */
-  handleDatabaseUpdate(firebaseState, firebaseUser) {
+  handleDatabaseUpdate(firebaseState = {}, firebaseUser) {
     if (firebaseUser) {
       console.log('caught TracksList.handleDatabaseUpdate WITH user',
         firebaseState, firebaseUser);
-      this.setState((state, props) => ({...firebaseState, loggedIn: true}))
+      this.setState(getUpdateFromFirebaseAction({...firebaseState}))
     } else {
       console.log('caught Tracks.onAuthStateChanged WITHOUT user');
-      this.setState((state, props) => ({sessions: {}, trackers: {}, loggedIn: false}))
+      this.setState(getLogoutAction())
     }
   }
 
@@ -285,14 +347,40 @@ class Tracks extends Component {
     this.setState(getSaveTrackerAction(trackerToSave), this.persistToDatabase);
   }
 
-  persistToDatabase(state) {
-    Firebase.set(this.state);
+    /**
+     * Remove private properties starting with an underscore from
+     * the state to persist to firebase. This is necessary so that
+     * multiple devices don't get into a race condition when updating firebase.
+     * @param state
+     */
+  persistToDatabase(state = this.state) {
+    const
+      {trackers = {}, sessions = {}} = state,
+      noopFilter                     = (instance) => instance.id,
+      localPropsCleaner              = (id, instance) => {
+        const // eslint-disable-next-line
+          {_elapsed, _sessionElapsed, cleanInstance} = instance;
+        return {
+          [id]: {
+            ...instance,
+          }
+
+        }
+      },
+      cleanTrackers                  = trackers
+        ? filterAndAssignObj(trackers, noopFilter, localPropsCleaner) : {},
+      cleanSessions                  = sessions
+        ? filterAndAssignObj(sessions, noopFilter, localPropsCleaner) : {}
+    ;
+    debugger;
+    Firebase.set({
+      trackers: cleanTrackers,
+      sessions: cleanSessions
+    });
   }
 
   onAdvanceTime() {
-    this.setState(getAdvanceTimeAction()
-      , this.persistToDatabase
-    )
+    this.setState(getAdvanceTimeAction())
   }
 
   onStartEditTrackId(trackerId) {
@@ -322,8 +410,8 @@ class Tracks extends Component {
         const
           tracker         = this.state.trackers[trackerId],
           session         = tracker.sessionId ? this.state.sessions[tracker.sessionId] : null,
-          sessionDuration = session ? session.elapsed + session.finalDuration : 0,
-          totalDuration   = tracker.completedSessionDuration + tracker.sessionElapsed
+          sessionDuration = session ? session._elapsed + session.finalDuration : 0,
+          totalDuration   = tracker.completedSessionDuration + tracker._sessionElapsed
         ;
         return (
           <Grid key={index} item sm={6} xs={12}>
