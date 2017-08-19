@@ -237,7 +237,8 @@ function getAdvanceTimeAction() {
 
 /**
  * TracksList.componentDidMound() subscribes to updates from our Firebase
- * adaptor, which uses this mutator to alter state.
+ * adaptor, which uses this mutator to alter state. This needs to support
+ * creating, updating, and deleting trackers.
  * @param firebaseState to update
  * @returns new local state
  */
@@ -247,12 +248,11 @@ function getUpdateFromFirebaseAction(firebaseState) {
     const
 
       newState                           = {
+        // we need to support updates as well as deletes
         trackers: {
-          ...trackers,
           ...firebaseState.trackers,
         },
         sessions: {
-          ...sessions,
           ...firebaseState.sessions,
         }
       };
@@ -372,7 +372,6 @@ class Tracks extends Component {
       cleanSessions                  = sessions
         ? filterAndAssignObj(sessions, noopFilter, localPropsCleaner) : {}
     ;
-    debugger;
     Firebase.set({
       trackers: cleanTrackers,
       sessions: cleanSessions
