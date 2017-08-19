@@ -21,7 +21,6 @@ class FirebaseConnection {
     // Shortcuts to Firebase SDK features.
     this.auth      = firebase.auth();
     this.database  = firebase.database();
-    this.storage   = firebase.storage();
     this.listeners = [];
 
     // Initiates Firebase auth and listen to auth state changes.
