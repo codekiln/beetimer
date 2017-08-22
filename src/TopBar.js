@@ -1,13 +1,13 @@
 import React, {PureComponent} from "react";
 import PropTypes from "prop-types";
-import {createStyleSheet, withStyles} from "material-ui/styles";
+import {withStyles} from "material-ui/styles";
 import AppBar from "material-ui/AppBar";
 import Toolbar from "material-ui/Toolbar";
 import Typography from "material-ui/Typography";
 // import IconButton from "material-ui/IconButton";
 // import MenuIcon from "material-ui-icons/Menu";
 
-const styleSheet = createStyleSheet('SimpleAppBar', {
+const styleSheet = theme => ({
   root: {
     position: 'relative',
     width: '100%',
@@ -32,7 +32,7 @@ class SimpleAppBar extends PureComponent {
       <div className={classes.root}>
         <AppBar className={classes.appBar}>
           <Toolbar>
-            <Typography type="title" colorInherit className={classes.flex}>Beetimer</Typography>
+            <Typography type="title" color="inherit" className={classes.flex}>Beetimer</Typography>
             {this.props.children}
           </Toolbar>
         </AppBar>

@@ -1,15 +1,15 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {createStyleSheet, withStyles} from "material-ui/styles";
+import {withStyles} from "material-ui/styles";
 import Card, {CardActions, CardContent} from "material-ui/Card";
 import IconButton from "material-ui/IconButton";
-// import {red} from "material-ui/styles/colors";
+// import {red} from "material-ui/colors";
 import DoneIcon from "material-ui-icons/Done";
 import DeleteIcon from "material-ui-icons/Delete";
 import {TextField} from "material-ui";
 
 
-const styleSheet = createStyleSheet('TrackCardEdit', theme => ({
+const styleSheet = theme => ({
   card: {
     // margin: theme.spacing.unit,
     maxWidth: 400
@@ -20,14 +20,14 @@ const styleSheet = createStyleSheet('TrackCardEdit', theme => ({
     // color: red[500]
   },
   input: {
-    // margin: theme.spacing.unit,
-    // width: 200
+    margin: theme.spacing.unit,
+    width: 300
   },
   descriptionInput: {
     // margin: theme.spacing.unit,
     // width: 200
   }
-}));
+});
 
 
 class TrackCardEdit extends Component {

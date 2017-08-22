@@ -93,7 +93,7 @@ export default class App extends Component {
       <UserAvatar displayName={this.state.userName}
                   imageUrl={this.state.userProfilePicUrl}
                   onLogout={this.handleLogoutClicked}/> :
-      <Button contrast onClick={this.handleLoginClicked}>Login</Button>;
+      <Button contrast color="inherit" onClick={this.handleLoginClicked}>Login</Button>;
 
     return (
       <MuiThemeProvider>

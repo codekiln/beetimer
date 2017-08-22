@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles, createStyleSheet } from 'material-ui/styles';
+import { withStyles } from 'material-ui/styles';
 import Avatar from 'material-ui/Avatar';
 import Chip from 'material-ui/Chip';
 // import FaceIcon from 'material-ui-icons/Face';
-import { grey } from 'material-ui/styles/colors';
+import { grey } from 'material-ui/colors';
 
-const styleSheet = createStyleSheet('UserAvatar', theme => ({
+const styleSheet = theme => ({
   chip: {
     margin: theme.spacing.unit,
   },
@@ -18,7 +18,7 @@ const styleSheet = createStyleSheet('UserAvatar', theme => ({
     justifyContent: 'center',
     flexWrap: 'wrap',
   },
-}));
+});
 
 
 function UserAvatar(props) {

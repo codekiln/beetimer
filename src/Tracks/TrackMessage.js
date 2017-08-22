@@ -1,10 +1,10 @@
 import React from "react";
-import {createStyleSheet, withStyles} from "material-ui/styles";
+import {withStyles} from "material-ui/styles";
 import {Grid, Paper, Typography} from "material-ui";
 import PropTypes from "prop-types";
 
 
-const styleSheet = createStyleSheet('TrackMessage', theme => ({
+const styleSheet = theme => ({
   root: theme.mixins.gutters({
     paddingTop: 16,
     paddingBottom: 16,
@@ -13,7 +13,7 @@ const styleSheet = createStyleSheet('TrackMessage', theme => ({
   button: {
     margin: theme.spacing.unit,
   },
-}));
+});
 
 
 function TrackMessage({classes, title, body}) {

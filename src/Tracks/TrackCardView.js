@@ -1,15 +1,15 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {createStyleSheet, withStyles} from 'material-ui/styles';
+import {withStyles} from 'material-ui/styles';
 import Card, {CardActions, CardContent, CardHeader} from 'material-ui/Card';
 import IconButton from 'material-ui/IconButton';
 import Typography from 'material-ui/Typography';
-import {red} from 'material-ui/styles/colors';
+import {red} from 'material-ui/colors';
 import PlayArrowIcon from 'material-ui-icons/PlayArrow';
 import PauseIcon from 'material-ui-icons/Pause';
 import ModeEditIcon from 'material-ui-icons/ModeEdit';
 
-const styleSheet = createStyleSheet('TrackCardView', theme => ({
+const styleSheet = theme => ({
   card:     {maxWidth: 400},
   flexGrow: {flex: '1 1 auto'},
   playIcon: {
@@ -20,7 +20,7 @@ const styleSheet = createStyleSheet('TrackCardView', theme => ({
   description: {
     margin: `0 0 ${theme.spacing.unit * 2}px 0`
   }
-}));
+});
 
 
 function renderTotalDuration(totalDuration) {
