@@ -1,10 +1,13 @@
 # https://github.com/facebookincubator/create-react-app/blob/6efab2e12dcd242377364f471c902119b9e9d2bd/packages/react-scripts/template/README.md#continuous-integration
 language: node_js
+before_install: yarn global add greenkeeper-lockfile@1
+before_script: greenkeeper-lockfile-update
+after_script: greenkeeper-lockfile-upload
 node_js:
   - 6
 cache:
   directories:
     - node_modules
 script:
-  - npm run build
-  - npm test
+  - yarn build
+  - yarn test

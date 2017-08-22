@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Firebase from '../Firebase';
-import {createStyleSheet, withStyles} from 'material-ui/styles';
+import {withStyles} from 'material-ui/styles';
 import {Button, Grid} from 'material-ui';
 import PropTypes from 'prop-types';
 import AddIcon from 'material-ui-icons/Add';
@@ -11,8 +11,7 @@ import UUID from 'uuid/v4';
 
 
 const
-
-  styleSheet = createStyleSheet('Tracks', theme => ({
+  styleSheet = theme => ({
     root:         {
       flexGrow:  1,
       marginTop: 30
@@ -27,7 +26,7 @@ const
     flashmessage: {
       justify: 'center',
     }
-  }))
+  })
 ;
 
 
@@ -445,8 +444,8 @@ class Tracks extends Component {
       <Grid container className={classes.grid}>
         {tracks}
         <Grid item xs={12}>
-          <Button fab accent className={classes.button} onClick={this.onAddTrackClicked}>
-            <AddIcon/>
+          <Button fab color="accent" className={classes.button} onClick={this.onAddTrackClicked}>
+            <AddIcon />
           </Button>
         </Grid>
       </Grid>

@@ -1,10 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
-import {createStyleSheet, withStyles} from "material-ui/styles";
+import { withStyles } from 'material-ui/styles';
 import Grid from "material-ui/Grid";
 
 
-const styleSheet = createStyleSheet('FullWidthGrid', theme => ({
+const styles = theme => ({
   root: {
     flexGrow: 1,
     marginTop: 30,
@@ -13,8 +13,7 @@ const styleSheet = createStyleSheet('FullWidthGrid', theme => ({
     padding: theme.spacing.unit * 2,
     height: '100%',
   },
-}));
-
+});
 
 function FullWidthGrid({classes, header, children}) {
 
@@ -39,4 +38,4 @@ FullWidthGrid.propTypes = {
 };
 
 
-export default withStyles(styleSheet)(FullWidthGrid);
+export default withStyles(styles)(FullWidthGrid);
