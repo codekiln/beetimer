@@ -4,6 +4,8 @@
   "version": "0.2.0",
   "private": true,
   "dependencies": {
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
     "firebase": "^4.1.1",
     "material-ui": "next",
     "material-ui-icons": "^1.0.0-alpha.3",
@@ -13,6 +15,7 @@
     "redux": "^3.7.2",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.2.0",
+    "todomvc-app-css": "^2.1.0",
     "uuid": "^3.0.1"
   },
   "devDependencies": {
