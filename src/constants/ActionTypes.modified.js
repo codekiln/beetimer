@@ -1,6 +1,0 @@
-export const ADD_TRACK = 'ADD_TRACK'
-export const DELETE_TRACK = 'DELETE_TRACK'
-export const EDIT_TRACK = 'EDIT_TRACK'
-export const FINISH_TRACK = 'FINISH_TRACK'
-export const CLEAR_ALL = 'CLEAR_ALL'
-export const START_TRACK = 'START_TRACK'
