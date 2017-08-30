@@ -56,6 +56,7 @@
   "devDependencies": {
     "babel-core": "^6.22.1",
     "babel-eslint": "^6.0.4",
+    "babel-jest": "^20.0.3",
     "babel-loader": "^6.2.5",
     "babel-plugin-istanbul": "^2.0.1",
     "babel-plugin-lodash": "^3.2.10",
@@ -88,6 +89,7 @@
     "html-webpack-plugin": "^2.22.0",
     "imports-loader": "^0.6.5",
     "ip": "^1.1.2",
+    "jest": "^20.0.4",
     "json-loader": "^0.5.4",
     "mocha": "^3.0.1",
     "node-sass": "^3.7.0",
@@ -124,6 +126,9 @@
     "collectCoverageFrom": [
       "src/**/*.{js,jsx}"
     ],
+    "globals": {
+       "__DEV__": true
+     },
     "setupFiles": [
       "<rootDir>/config/polyfills.js"
     ],
@@ -143,7 +148,8 @@
     ],
     "moduleNameMapper": {
       "^react-native$": "react-native-web"
-    }
+    },
+    "moduleDirectories": ["node_modules", "src"]
   },
   "babel": {
     "presets": [
