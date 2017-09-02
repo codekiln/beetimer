@@ -13,3 +13,4 @@ script:
   - yarn test
 dist: trusty
 sudo: false
+group: edge
