@@ -12,3 +12,4 @@ script:
   - yarn build
   - yarn test
 dist: trusty
+sudo: false
