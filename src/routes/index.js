@@ -1,6 +1,7 @@
 // We only need to import the modules necessary for initial render
 import CoreLayout from '../layouts/CoreLayout/CoreLayout'
 import Home from './Home'
+import Todos from './Todos'
 import LoginRoute from './Login'
 import SignupRoute from './Signup'
 import ProjectsRoute from './Projects'
@@ -18,6 +19,7 @@ export const createRoutes = store => ({
     AccountRoute,
     LoginRoute,
     SignupRoute,
+    Todos,
     ProjectsRoute(store), // async route definitions recieve store
     RecoverRoute(store) // async route definitions recieve store
   ]

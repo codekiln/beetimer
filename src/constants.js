@@ -1,4 +1,5 @@
 export const LIST_PATH = '/projects'
+export const TODOS_PATH = '/todos'
 export const DETAIL_PATH = ':projectname'
 export const ACCOUNT_PATH = '/account'
 export const LOGIN_PATH = '/login'
@@ -21,6 +22,7 @@ export const formNames = {
 
 export const paths = {
   list: LIST_PATH,
+  todos: TODOS_PATH,
   account: ACCOUNT_PATH,
   detail: DETAIL_PATH,
   login: LOGIN_PATH,
