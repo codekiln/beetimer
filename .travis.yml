@@ -11,3 +11,6 @@ cache:
 script:
   - yarn build
   - yarn test
+dist: trusty
+sudo: required
+group: edge

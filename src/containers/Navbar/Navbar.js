@@ -19,6 +19,7 @@ import FlatButton from 'material-ui/FlatButton'
 import DownArrow from 'material-ui/svg-icons/hardware/keyboard-arrow-down'
 import Avatar from 'material-ui/Avatar'
 import defaultUserImage from 'static/User.png'
+import beetimerLogo from 'static/beetimer_yellow_128.png'
 
 const buttonStyle = {
   color: 'white',
@@ -119,13 +120,14 @@ export default class Navbar extends Component {
             to={accountExists ? `${LIST_PATH}` : '/'}
             className={classes.brand}
           >
-            material example
+            <img className={classes.icon} src={beetimerLogo}/> Beetimer
           </Link>
         }
         showMenuIconButton={false}
         iconElementRight={rightMenu}
         iconStyleRight={accountExists ? avatarStyles.wrapper : {}}
         className={classes.appBar}
+        // style={{ backgroundColor: Theme.palette.accent1Color }}
       />
     )
   }
