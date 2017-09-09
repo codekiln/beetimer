@@ -1,7 +1,0 @@
-{
-  "projects": {
-    "dev": "beetimer-redux",
-    "stage": "beetimer-redux",
-    "prod": "beetimer-redux"
-  }
-}
