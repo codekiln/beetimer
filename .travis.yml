@@ -1,27 +1,13 @@
+# https://github.com/facebookincubator/create-react-app/blob/6efab2e12dcd242377364f471c902119b9e9d2bd/packages/react-scripts/template/README.md#continuous-integration
 language: node_js
-
+before_install: yarn global add greenkeeper-lockfile@1
+before_script: greenkeeper-lockfile-update
+after_script: greenkeeper-lockfile-upload
 node_js:
-  - 7
   - 6
-  - 5
-
-script:
-  - node ./internals/scripts/generate-templates-for-linting
-  - npm run test
-  - npm run build
-
-before_install:
-  - export CHROME_BIN=chromium-browser
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
-
-notifications:
-  email:
-    on_failure: change
-
-after_success: 'npm run coveralls'
-
 cache:
-  yarn: true
   directories:
     - node_modules
+script:
+  - yarn build
+  - yarn test
