@@ -34,6 +34,24 @@ export default function createRoutes(store) {
         importModules.catch(errorLoading);
       },
     }, {
+      path: '/timer/new',
+      name: 'timerNew',
+      getComponent(nextState, cb) {
+        const importModules = Promise.all([
+          import('containers/TimerNew/reducer'),
+          import('containers/TimerNew'),
+        ]);
+
+        const renderRoute = loadModule(cb);
+
+        importModules.then(([reducer, component]) => {
+          injectReducer('timerNew', reducer.default);
+          renderRoute(component);
+        });
+
+        importModules.catch(errorLoading);
+      },
+    }, {
       path: '*',
       name: 'notfound',
       getComponent(nextState, cb) {
